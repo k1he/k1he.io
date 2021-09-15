@@ -6,7 +6,7 @@
   <link href="https://k1he.github.io/atom.xml" rel="self"/>
   
   <link href="https://k1he.github.io/"/>
-  <updated>2021-09-15T09:19:59.418Z</updated>
+  <updated>2021-09-15T14:53:44.000Z</updated>
   <id>https://k1he.github.io/</id>
   
   <author>
@@ -21,15 +21,15 @@
     <link href="https://k1he.github.io/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/"/>
     <id>https://k1he.github.io/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/</id>
     <published>2021-09-15T08:58:27.000Z</published>
-    <updated>2021-09-15T09:19:59.418Z</updated>
+    <updated>2021-09-15T14:53:44.000Z</updated>
     
-    <content type="html"><![CDATA[<p>这是一篇测试文章用于测试图片是否而可用。</p><p><img "" class="lazyload placeholder" data-original="/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/hexo\source_posts\测试文章\9.jpg" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="test"></p>]]></content>
+    <content type="html"><![CDATA[<p>这是一篇测试文章用于测试图片是否而可用。</p><p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/15/pSd51UOeKXGmVWQ.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210915225327523"></p>]]></content>
     
     
       
       
     <summary type="html">&lt;p&gt;这是一篇测试文章用于测试图片是否而可用。&lt;/p&gt;
-&lt;p&gt;&lt;img &quot;&quot; class=&quot;lazyload placeholder&quot; data-original=&quot;/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/hexo\sou</summary>
+&lt;p&gt;&lt;img &quot;&quot; class=&quot;lazyload placeholder&quot; data-original=&quot;https://i.loli.net/2021/09/15/pSd51UOeKXGmVWQ.png&quot; src=&quot;h</summary>
       
     
     
