@@ -3,11 +3,11 @@
   <title>K1he</title>
   
   
-  <link href="https://a1021245006.github.io/atom.xml" rel="self"/>
+  <link href="https://k1he.github.io/atom.xml" rel="self"/>
   
-  <link href="https://a1021245006.github.io/"/>
+  <link href="https://k1he.github.io/"/>
   <updated>2021-09-15T09:19:59.418Z</updated>
-  <id>https://a1021245006.github.io/</id>
+  <id>https://k1he.github.io/</id>
   
   <author>
     <name>k1he</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>测试文章</title>
-    <link href="https://a1021245006.github.io/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/"/>
-    <id>https://a1021245006.github.io/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/</id>
+    <link href="https://k1he.github.io/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/"/>
+    <id>https://k1he.github.io/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/</id>
     <published>2021-09-15T08:58:27.000Z</published>
     <updated>2021-09-15T09:19:59.418Z</updated>
     
@@ -35,14 +35,14 @@
     
     
     
-    <category term="CTF" scheme="https://a1021245006.github.io/tags/CTF/"/>
+    <category term="CTF" scheme="https://k1he.github.io/tags/CTF/"/>
     
   </entry>
   
   <entry>
     <title>BJCTF2020-EZPHP</title>
-    <link href="https://a1021245006.github.io/2021/09/14/hello-world/"/>
-    <id>https://a1021245006.github.io/2021/09/14/hello-world/</id>
+    <link href="https://k1he.github.io/2021/09/14/hello-world/"/>
+    <id>https://k1he.github.io/2021/09/14/hello-world/</id>
     <published>2021-09-14T08:00:02.251Z</published>
     <updated>2021-09-15T03:13:24.937Z</updated>
     
@@ -57,7 +57,7 @@
     
     
     
-    <category term="CTF" scheme="https://a1021245006.github.io/tags/CTF/"/>
+    <category term="CTF" scheme="https://k1he.github.io/tags/CTF/"/>
     
   </entry>
   
