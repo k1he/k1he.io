@@ -725,7 +725,11 @@
     <article class="post post-detail">
       
       <div class="post-content">
-        <h1 id="CTF中Session文件包含与条件竞争"><a href="#CTF中Session文件包含与条件竞争" class="headerlink" title="CTF中Session文件包含与条件竞争"></a>CTF中Session文件包含与条件竞争</h1><p>记得2021ciscn国赛初赛给了一道session竞争的题目。上次CTFSHOW 吃瓜杯也做到了session条件竞争。这次2021祥云杯又出了这个考点。三次都没做出来。嘻嘻嘻!🤭。所以今天决定花时间把这个考点搞清除，整明白。</p>
+        <h1 id="CTF中Session文件包含与条件竞争"><a href="#CTF中Session文件包含与条件竞争" class="headerlink" title="CTF中Session文件包含与条件竞争"></a>CTF中Session文件包含与条件竞争</h1><p>记得2021ciscn国赛初赛给了一道session竞争的题目。上次CTFSHOW 吃瓜杯也做到了session条件竞争。这次2021祥云杯又出了这个考点。三次都没做出来。</p>
+<p>这里参考了许多师傅们的文章。但是忘了贴出来。师傅们TQL！</p>
+<p>嘻嘻嘻!🤭。所以今天决定花时间把这个考点搞清除，整明白。</p>
+<span id="more"></span>
+
 <p>##session知识点</p>
 <p>众所周知，session是会出现在我们的cookie当中。作为一种用户凭证。在PHP 5.4以上的版本，session中多了一个记录文件上传进度的功能。那么现在说一下如果要利用条件竞争，需要的几个必备条件。</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">session.upload_progress.enabled = on:该参数设置为On时，才会进行文件上传进度的记录。</span><br><span class="line"></span><br><span class="line">session.upload_progress.cleanup = on:该参数开启时，会在文件上传结束时对用户session内容进行自动清除。</span><br><span class="line"></span><br><span class="line">session.upload_progress.name = <span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span>:	该参数与prefix作为我们的键名。方便我们的shell编写，可控。</span><br><span class="line"></span><br><span class="line">session.upload_progress.prefix = <span class="string">&quot;upload_progress_&quot;</span>:该参数表示与name一起构成我们的键名。</span><br></pre></td></tr></table></figure>
@@ -836,8 +840,11 @@
         <div class="title-text">CTFSHOW-PHP特性</div>
       </div>
       <!-- <div class="content">
-        ﻿﻿# web 89:数组绕过正则
-12345678910111213141516&lt;?phpinclude(&qu
+        CTFSHOW PHP特性基本上能见到的PHP特性题目这里都有了。
+题目来源CTFSHOW web入门。
+
+
+﻿﻿# w
       </div> -->
     </a>
   </div>

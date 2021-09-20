@@ -725,7 +725,11 @@
     <article class="post post-detail">
       
       <div class="post-content">
-        <p>﻿﻿# web 89:数组绕过正则</p>
+        <h1 id="CTFSHOW-PHP特性"><a href="#CTFSHOW-PHP特性" class="headerlink" title="CTFSHOW PHP特性"></a>CTFSHOW PHP特性</h1><p>基本上能见到的PHP特性题目这里都有了。</p>
+<p>题目来源CTFSHOW web入门。</p>
+<span id="more"></span>
+
+<p>﻿﻿# web 89:数组绕过正则</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span>(<span class="string">&quot;flag.php&quot;</span>);</span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;num&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$num</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;num&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span>(preg_match(<span class="string">&quot;/[0-9]/&quot;</span>, <span class="variable">$num</span>))&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;no no no!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(intval(<span class="variable">$num</span>))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">正则表达式不会匹配数组</span><br><span class="line">intval处理数组时，会返回<span class="number">1</span>.</span><br><span class="line">payload: ?num[]=a</span><br></pre></td></tr></table></figure>
 
 
@@ -1026,7 +1030,10 @@
         <div class="title-text">BJCTF2020-EZPHP</div>
       </div>
       <!-- <div class="content">
-        题目1234567891011121314151617181920212223242526272829303132333
+        BJCTF2020-EZPHP一道很有意思的PHP题目。包含了很多知识点，通过这道题真的学到了很多东西。
+
+
+题目123
       </div> -->
     </a>
   </div>
